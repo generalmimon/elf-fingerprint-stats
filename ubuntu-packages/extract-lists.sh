@@ -14,6 +14,8 @@ rm -f Packages.gz
 grep -oP '(?<=Package: ).*' Packages > dists-noble-main-amd64.txt
 rm -f Packages
 
+7z l "$ubuntu_iso" casper/ > ls-casper.txt
+
 7z e -aoa "$ubuntu_iso" 'casper/install-sources.yaml'
 
 7z e -aoa "$ubuntu_iso" 'casper/filesystem.manifest'
