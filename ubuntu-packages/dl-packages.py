@@ -45,6 +45,45 @@ class Package:
     filename: str
     architecture: str
 
+def download_packages_in_manifest(manifest_path: Path, packages: dict[str, Package], packages_out_dir: Path):
+    with open(manifest_path, 'r', encoding='utf-8') as f:
+        for line in f:
+            line = line.rstrip('\n')
+            name, version = line.split('\t', maxsplit=1)
+            if name.startswith('snap:'):
+                continue
+
+            if name.endswith(':amd64'):
+                name = name.removesuffix(':amd64')
+
+            if DEB_PACKAGE_NAME_REGEX.fullmatch(name) is None:
+                print(f'{name!r} is invalid')
+
+            try:
+                pkg = packages[name]
+            except KeyError:
+                print(f'package {name!r} not found')
+                continue
+
+            pkg_basename = PurePosixPath(pkg.filename).name
+
+            if pkg.architecture != 'amd64':
+                continue
+
+            try:
+                o = open(packages_out_dir / pkg_basename, 'xb')
+            except FileExistsError:
+                continue
+
+            with o:
+                # https://stackoverflow.com/a/16696317/12940655
+                with requests.get(f'{mirror_url}/ubuntu/{pkg.filename}', stream=True) as r:
+                    print(r.url)
+                    r.raise_for_status()
+                    for chunk in r.iter_content(chunk_size=8192):
+                        o.write(chunk)
+
+
 packages_file_contents = get_packages_control_file_contents(mirror_url)
 
 packages: dict[str, Package] = {}
@@ -52,34 +91,5 @@ for pkg in deb822.Packages.iter_paragraphs(packages_file_contents, use_apt_pkg=F
     name = pkg['package']
     packages[name] = Package(name, pkg['version'], pkg['filename'], pkg['architecture'])
 
-with open(script_dir / 'ubuntu-24.04.1-desktop-amd64.manifest', 'r', encoding='utf-8') as f:
-    for line in f:
-        line = line.rstrip('\n')
-        name, version = line.split('\t', maxsplit=1)
-        if name.startswith('snap:'):
-            continue
-
-        if name.endswith(':amd64'):
-            name = name.removesuffix(':amd64')
-
-        if DEB_PACKAGE_NAME_REGEX.fullmatch(name) is None:
-            print(f'{name!r} is invalid')
-
-        try:
-            pkg = packages[name]
-        except KeyError:
-            print(f'package {name!r} not found')
-            continue
-
-        if pkg.architecture != 'amd64':
-            print(f'package {name!r} has architecture {pkg.architecture!r}, skipping')
-            continue
-
-        # https://stackoverflow.com/a/16696317/12940655
-        with requests.get(f'{mirror_url}/ubuntu/{pkg.filename}', stream=True) as r:
-            print(r.url)
-            r.raise_for_status()
-            pkg_basename = PurePosixPath(pkg.filename).name
-            with open(packages_out_dir / pkg_basename, 'wb') as o:
-                for chunk in r.iter_content(chunk_size=8192):
-                    o.write(chunk)
+download_packages_in_manifest(script_dir / 'ubuntu-24.04.1-desktop-amd64.manifest', packages, packages_out_dir)
+download_packages_in_manifest(script_dir / 'ubuntu-24.04.1-live-server-amd64.manifest', packages, packages_out_dir)
