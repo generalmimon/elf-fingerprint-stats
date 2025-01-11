@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 from elf import Elf
 import subprocess
+from tqdm import tqdm
 
 script_dir = Path(__file__).parent.resolve(True)
 elfs_dir = script_dir / 'extracted-elfs'
@@ -105,7 +106,7 @@ def extract_strings_from_blob(path: Path) -> list[str]:
 def main():
     json_from_elfs = {}
     json_from_blobs = {}
-    for elf_path in sorted(elfs_dir.iterdir()):
+    for elf_path in tqdm(sorted(elfs_dir.iterdir())):
         json_from_elfs[elf_path.name] = extract_strings_from_elf(elf_path)
         json_from_blobs[elf_path.name] = extract_strings_from_blob(elf_path)
 

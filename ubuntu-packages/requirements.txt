@@ -5,4 +5,5 @@ idna==3.10
 kaitaistruct==0.10
 python-debian==0.1.49
 requests==2.32.3
+tqdm==4.67.1
 urllib3==2.3.0
