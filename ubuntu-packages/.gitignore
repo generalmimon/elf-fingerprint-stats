@@ -1,2 +1,3 @@
-/packages
-/extracted-elfs
+/packages/
+/extracted-elfs/
+/extracted-strings*/
