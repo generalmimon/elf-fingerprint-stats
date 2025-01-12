@@ -5,6 +5,7 @@ import json
 from pathlib import Path
 from elf import Elf
 import subprocess
+import re
 from tqdm import tqdm
 
 script_dir = Path(__file__).parent.resolve(True)
@@ -12,20 +13,13 @@ elfs_dir = script_dir / 'extracted-elfs'
 out_dir = script_dir / 'extracted-strings'
 out_dir.mkdir(exist_ok=True)
 
-# # https://github.com/armijnhemel/binaryanalysis-ng/blob/e05071e01213c7d7d7261e979ab1d308872e87d0/src/bang/parsers/executable/elf/UnpackParser.py#L62-L65
-# # Read only data sections. This should be expanded.
-# RODATA_SECTIONS = ['.rodata', '.rodata.str1.1', '.rodata.str1.4',
-#                    '.rodata.str1.8', '.rodata.cst4', '.rodata.cst8',
-#                    '.rodata.cst16', 'rodata']
+# https://github.com/armijnhemel/binaryanalysis-ng/blob/e05071e01213c7d7d7261e979ab1d308872e87d0/src/bang/parsers/executable/elf/UnpackParser.py#L62-L65
+# Read only data sections. This should be expanded.
+RODATA_SECTIONS = ['.rodata', '.rodata.str1.1', '.rodata.str1.4',
+                   '.rodata.str1.8', '.rodata.cst4', '.rodata.cst8',
+                   '.rodata.cst16', 'rodata']
 
-# https://github.com/armijnhemel/binaryanalysis-ng/blob/e05071e01213c7d7d7261e979ab1d308872e87d0/src/bang/parsers/executable/elf/UnpackParser.py#L70-L74
-# characters to be removed when extracting strings
-REMOVE_CHARACTERS = ['\a', '\b', '\v', '\f', '\x01', '\x02', '\x03', '\x04',
-                     '\x05', '\x06', '\x0e', '\x0f', '\x10', '\x11', '\x12',
-                     '\x13', '\x14', '\x15', '\x16', '\x17', '\x18', '\x19',
-                     '\x1a', '\x1b', '\x1c', '\x1d', '\x1e', '\x1f', '\x7f']
-
-REMOVE_CHARACTERS_TABLE = str.maketrans({ch: '' for ch in REMOVE_CHARACTERS})
+STRING_SEPARATOR_REGEX = re.compile(r'[\x00-\x08\x0a-\x1f\x7f\ufffd]+')
 
 # https://github.com/armijnhemel/binaryanalysis-ng/blob/e05071e01213c7d7d7261e979ab1d308872e87d0/src/bang/parsers/executable/elf/UnpackParser.py#L88-L90
 # translation table for ASCII strings for the string
@@ -43,9 +37,7 @@ def extract_strings_from_elf(elf_path: Path | str) -> dict:
     undefined_symbols = []
 
     for header in headers:
-        if 'rodata' in header.name and header.name not in ('.rel.rodata', '.rela.rodata'):
-            if header.name != '.rodata':
-                print(f'unusual name of .rodata section {header.name!r}')
+        if header.name in RODATA_SECTIONS:
             if header.type == Elf.ShType.nobits:
                 continue
             assert header.type == Elf.ShType.progbits, f'unexpected type {header.type!r} for {header.name!r} section in {elf_path.name}'
@@ -53,27 +45,36 @@ def extract_strings_from_elf(elf_path: Path | str) -> dict:
 
             # https://github.com/armijnhemel/binaryanalysis-ng/blob/e05071e01213c7d7d7261e979ab1d308872e87d0/src/bang/parsers/executable/elf/UnpackParser.py#L774-L795
             for s in body.split(b'\x00'):
-                try:
-                    decoded_strings = s.decode().splitlines()
-                    for decoded_string in decoded_strings:
-                        for rc in REMOVE_CHARACTERS:
-                            if rc in decoded_string:
-                                decoded_string = decoded_string.translate(REMOVE_CHARACTERS_TABLE)
+                decoded_s = s.decode('utf-8', errors='replace')
+                # We look for the last UTF-8 decode error, which is indicated by the
+                # U+FFFD REPLACEMENT CHARACTER. If we find it, we only consider the part
+                # after it until the b'\x00' byte and ignore everything before it. The
+                # logic is that strings in C are null-terminated, so any actual string
+                # literal in C source code will end with b'\x00', but it can start
+                # anywhere in the .rodata section right after any "garbage" (some generic
+                # read-only data not coming from a string literal). If we are lucky, this
+                # garbage will fail to decode to UTF-8 somewhere, in which case we can
+                # limit the range where we look for strings, which will filter out the
+                # nonsense strings found in the binary garbage from the output.
+                repl_ch_idx = decoded_s.rfind('\ufffd')
+                if repl_ch_idx != -1:
+                    decoded_s = decoded_s[repl_ch_idx + 1:]
+                decoded_strings = STRING_SEPARATOR_REGEX.split(decoded_s)
+                for decoded_string in decoded_strings:
+                    if len(decoded_string) < STRING_CUTOFF_LENGTH:
+                        continue
+                    if decoded_string.isspace():
+                        continue
 
-                        if len(decoded_string) < STRING_CUTOFF_LENGTH:
-                            continue
-                        if decoded_string.isspace():
-                            continue
-
-                        translated_string = decoded_string.translate(STRING_TRANSLATION_TABLE)
-                        if decoded_string.isascii():
-                            # test the translated string
-                            if translated_string.isprintable():
-                                string_literals.append(decoded_string)
-                        else:
+                    translated_string = decoded_string.translate(STRING_TRANSLATION_TABLE)
+                    if decoded_string.isascii():
+                        # test the translated string
+                        if translated_string.isprintable():
                             string_literals.append(decoded_string)
-                except UnicodeDecodeError:
-                    pass
+                        else:
+                            print(f'Skipping non-printable ASCII string {decoded_string!r}')
+                    else:
+                        string_literals.append(decoded_string)
         elif header.type == Elf.ShType.dynsym:
             assert header.name == '.dynsym'
             entries: list[Elf.EndianElf.DynsymSectionEntry] = header.body.entries
