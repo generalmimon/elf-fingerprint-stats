@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
 
-from collections import Counter
 import json
 from pathlib import Path
 from elf import Elf
@@ -33,8 +32,10 @@ def extract_strings_from_elf(elf_path: Path | str) -> dict:
     headers: list[Elf.EndianElf.SectionHeader] = data.header.section_headers
 
     string_literals = []
-    defined_symbols = []
-    undefined_symbols = []
+    defined_functions = []
+    undefined_functions = []
+    defined_objects = []
+    undefined_objects = []
 
     for header in headers:
         if header.name in RODATA_SECTIONS:
@@ -80,24 +81,30 @@ def extract_strings_from_elf(elf_path: Path | str) -> dict:
             entries: list[Elf.EndianElf.DynsymSectionEntry] = header.body.entries
 
             # https://github.com/armijnhemel/binaryanalysis-ng/blob/e05071e01213c7d7d7261e979ab1d308872e87d0/src/bang/parsers/executable/elf/UnpackParser.py#L676-L687
-            for idx, entry in enumerate(entries):
+            for entry in entries:
                 symbol_name = entry.name or ''
-                if entry.type not in (Elf.SymbolType.func, Elf.SymbolType.object):
-                    # print(f'Skipping symbol {symbol_name!r} because it has type {entry.type!r}')
-                    continue
                 if entry.bind != Elf.SymbolBinding.global_symbol:
                     # print(f'Skipping symbol {symbol_name!r} because it has binding {entry.bind!r}')
                     continue
 
-                if entry.sh_idx_special == Elf.SectionHeaderIdxSpecial.undefined:
-                    undefined_symbols.append(symbol_name)
-                else:
-                    defined_symbols.append(symbol_name)
+                if entry.type == Elf.SymbolType.func:
+                    if entry.sh_idx_special == Elf.SectionHeaderIdxSpecial.undefined:
+                        undefined_functions.append(symbol_name)
+                    else:
+                        defined_functions.append(symbol_name)
+
+                if entry.type == Elf.SymbolType.object:
+                    if entry.sh_idx_special == Elf.SectionHeaderIdxSpecial.undefined:
+                        undefined_objects.append(symbol_name)
+                    else:
+                        defined_objects.append(symbol_name)
 
     return {
         'strings': string_literals,
-        'defined_symbols': defined_symbols,
-        'undefined_symbols': undefined_symbols,
+        'defined_functions': defined_functions,
+        'undefined_functions': undefined_functions,
+        'defined_objects': defined_objects,
+        'undefined_objects': undefined_objects,
     }
 
 def extract_strings_from_blob(path: Path) -> list[str]:
