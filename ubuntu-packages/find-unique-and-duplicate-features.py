@@ -35,42 +35,38 @@ def main():
 
     grouped_by_elf_set = defaultdict(lambda: copy.deepcopy(features_dict_template))
 
-    packages_info = defaultdict(lambda: {
-        'common_features': None,
-        'elfs': {},
-    })
+    FEATURE_GROUPS = ['elf_unique', 'package_unique', 'not_unique']
+    elf_info_template = {feat_group: copy.deepcopy(features_dict_template) for feat_group in FEATURE_GROUPS}
+
+    packages_info = defaultdict(dict)
     for elf in json_from_elfs:
         package_name, elf_name = split_full_elf_name(elf)
-        if package_name not in packages_info:
-            packages_info[package_name] = {
-                'common_features': None,
-                'elfs': {},
-            }
-        elif packages_info[package_name]['common_features'] is None:
-            packages_info[package_name]['common_features'] = copy.deepcopy(features_dict_template)
-
-        packages_info[package_name]['elfs'][elf_name] = copy.deepcopy(features_dict_template)
+        packages_info[package_name][elf_name] = copy.deepcopy(elf_info_template)
 
     packages_info = dict(packages_info)
 
     for feature_type, instances_dict in inverse_map.items():
         for inst, elfs in instances_dict.items():
-            package_name, elf_name = split_full_elf_name(elfs[0])
-            if all(split_full_elf_name(elf)[0] == package_name for elf in elfs):
-                package_info = packages_info[package_name]
-                if len(elfs) == 1:
-                    package_info['elfs'][elf_name][feature_type].append(inst)
-                else:
-                    package_info['common_features'][feature_type].append(inst)
+            if len(elfs) == 1:
+                package_name, elf_name = split_full_elf_name(elfs[0])
+                packages_info[package_name][elf_name]['elf_unique'][feature_type].append(inst)
             else:
-                grouped_by_elf_set[tuple(elfs)][feature_type].append(inst)
+                first_package_name, _ = split_full_elf_name(elfs[0])
+                if all(split_full_elf_name(elf)[0] == first_package_name for elf in elfs):
+                    feat_group = 'package_unique'
+                else:
+                    feat_group = 'not_unique'
+                    grouped_by_elf_set[tuple(elfs)][feature_type].append(inst)
+                for elf in elfs:
+                    package_name, elf_name = split_full_elf_name(elf)
+                    packages_info[package_name][elf_name][feat_group][feature_type].append(inst)
 
     ordered_grouped_by_elf_set = [
         {'elfs': elfs, **features_dict}
         for elfs, features_dict in sorted(grouped_by_elf_set.items(), key=lambda t: sum(len(instances) for instances in t[1].values()), reverse=True)
     ]
 
-    with open(strings_dir / 'from-elfs-unique-per-packages.json', 'w', encoding='utf-8') as f:
+    with open(strings_dir / 'from-elfs-classified-per-packages.json', 'w', encoding='utf-8') as f:
         json.dump(packages_info, f, ensure_ascii=False, allow_nan=False, indent=2)
 
     with open(strings_dir / 'from-elfs-duplicate-grouped.json', 'w', encoding='utf-8') as f:
