@@ -119,10 +119,10 @@ def main():
         json_from_blobs[elf_path.name] = extract_strings_from_blob(elf_path)
 
     with open(out_dir / 'from-elfs.json', 'w', encoding='utf-8') as f:
-        json.dump(json_from_elfs, f, ensure_ascii=False, allow_nan=False, indent=4)
+        json.dump(json_from_elfs, f, ensure_ascii=False, allow_nan=False, indent=2)
 
     with open(out_dir / 'from-blobs.json', 'w', encoding='utf-8') as f:
-        json.dump(json_from_blobs, f, ensure_ascii=False, allow_nan=False, indent=4)
+        json.dump(json_from_blobs, f, ensure_ascii=False, allow_nan=False, indent=2)
 
 if __name__ == '__main__':
     main()

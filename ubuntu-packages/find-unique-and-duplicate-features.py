@@ -71,10 +71,10 @@ def main():
     ]
 
     with open(strings_dir / 'from-elfs-unique-per-packages.json', 'w', encoding='utf-8') as f:
-        json.dump(packages_info, f, ensure_ascii=False, allow_nan=False, indent=4)
+        json.dump(packages_info, f, ensure_ascii=False, allow_nan=False, indent=2)
 
     with open(strings_dir / 'from-elfs-duplicate-grouped.json', 'w', encoding='utf-8') as f:
-        json.dump(ordered_grouped_by_elf_set, f, ensure_ascii=False, allow_nan=False, indent=4)
+        json.dump(ordered_grouped_by_elf_set, f, ensure_ascii=False, allow_nan=False, indent=2)
 
 
 if __name__ == "__main__":
