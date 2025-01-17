@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 from pathlib import Path, PurePosixPath
-import requests  # If this fails, make sure to [install Requests](https://requests.readthedocs.io/en/latest/user/install/)
+import requests
 import sys
 import re
 import gzip
@@ -42,8 +42,9 @@ def get_packages_control_file_contents(mirror_url):
 class Package:
     name: str
     version: str
-    filename: str
+    filename: PurePosixPath
     architecture: str
+    source: str
 
 def download_packages_in_manifest(manifest_path: Path, packages: dict[str, Package], packages_out_dir: Path):
     with open(manifest_path, 'r', encoding='utf-8') as f:
@@ -70,8 +71,11 @@ def download_packages_in_manifest(manifest_path: Path, packages: dict[str, Packa
             if pkg.architecture != 'amd64':
                 continue
 
+            source_pkg_dir = packages_out_dir / pkg.source
+            source_pkg_dir.mkdir(exist_ok=True)
+
             try:
-                o = open(packages_out_dir / pkg_basename, 'xb')
+                o = open(source_pkg_dir / pkg_basename, 'xb')
             except FileExistsError:
                 continue
 
@@ -84,12 +88,13 @@ def download_packages_in_manifest(manifest_path: Path, packages: dict[str, Packa
                         o.write(chunk)
 
 
-packages_file_contents = get_packages_control_file_contents(mirror_url)
-
-packages: dict[str, Package] = {}
-for pkg in deb822.Packages.iter_paragraphs(packages_file_contents, use_apt_pkg=False):
-    name = pkg['package']
-    packages[name] = Package(name, pkg['version'], pkg['filename'], pkg['architecture'])
+with open(script_dir / 'ubuntu_dists_noble_main_binary-amd64_Packages', 'rb') as packages_file:
+    packages: dict[str, Package] = {}
+    for pkg in deb822.Packages.iter_paragraphs(packages_file, use_apt_pkg=False):
+        name = pkg['package']
+        filename = PurePosixPath(pkg['filename'])
+        assert pkg.source == filename.parent.name
+        packages[name] = Package(name, pkg['version'], filename, pkg['architecture'], pkg.source)
 
 download_packages_in_manifest(script_dir / 'ubuntu-24.04.1-desktop-amd64.manifest', packages, packages_out_dir)
 download_packages_in_manifest(script_dir / 'ubuntu-24.04.1-live-server-amd64.manifest', packages, packages_out_dir)
