@@ -114,9 +114,12 @@ def extract_strings_from_blob(path: Path) -> list[str]:
 def main():
     json_from_elfs = {}
     json_from_blobs = {}
-    for elf_path in tqdm(sorted(elfs_dir.iterdir())):
-        json_from_elfs[elf_path.name] = extract_strings_from_elf(elf_path)
-        json_from_blobs[elf_path.name] = extract_strings_from_blob(elf_path)
+    for elf_path in tqdm(sorted(elfs_dir.glob('**/*'))):
+        if not elf_path.is_file():
+            continue
+        rel_elf_path = str(elf_path.relative_to(elfs_dir))
+        json_from_elfs[rel_elf_path] = extract_strings_from_elf(elf_path)
+        json_from_blobs[rel_elf_path] = extract_strings_from_blob(elf_path)
 
     with open(out_dir / 'from-elfs.json', 'w', encoding='utf-8') as f:
         json.dump(json_from_elfs, f, ensure_ascii=False, allow_nan=False, indent=2)
