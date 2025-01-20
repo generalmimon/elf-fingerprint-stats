@@ -86,19 +86,19 @@ def main():
                 pool[inst].append(elf_path)
                 processed_instances.add(inst)
 
-    features_dict_template = {feature_type: [] for feature_type in inverse_map}
-
-    grouped_by_elf_set = defaultdict(lambda: copy.deepcopy(features_dict_template))
+    feature_types_dict_template = {feature_type: [] for feature_type in inverse_map}
+    grouped_by_elf_set = defaultdict(lambda: copy.deepcopy(feature_types_dict_template))
 
     FEATURE_GROUPS = ['elf_unique', 'binary_pkg_unique', 'source_pkg_unique', 'not_unique']
-    elf_info_template = {feat_group: copy.deepcopy(features_dict_template) for feat_group in FEATURE_GROUPS}
+    feature_groups_dict_template = {feat_group: [] for feat_group in FEATURE_GROUPS}
+    elf_info_template = {feature_type: copy.deepcopy(feature_groups_dict_template) for feature_type in inverse_map}
 
     packages_info = defaultdict(dict)
     for elf_path in json_from_elfs:
         packages_info[elf_path.pkg_path][elf_path.name] = copy.deepcopy(elf_info_template)
 
     packages_info = dict(packages_info)
-    aggr_features = {feat_group: copy.deepcopy(features_dict_template) for feat_group in FEATURE_GROUPS}
+    aggr_features = {feature_type: copy.deepcopy(feature_groups_dict_template) for feature_type in inverse_map}
 
     for feature_type, instances_dict in inverse_map.items():
         for inst, elfs in instances_dict.items():
@@ -115,15 +115,15 @@ def main():
                 feat_group = 'not_unique'
                 grouped_by_elf_set[tuple(elfs)][feature_type].append(inst)
             for elf_path in elfs:
-                packages_info[elf_path.pkg_path][elf_path.name][feat_group][feature_type].append(inst)
-            aggr_features[feat_group][feature_type].append((inst, (num_source_pkgs, num_binary_pkgs, num_elfs)))
+                packages_info[elf_path.pkg_path][elf_path.name][feature_type][feat_group].append(inst)
+            aggr_features[feature_type][feat_group].append((inst, (num_source_pkgs, num_binary_pkgs, num_elfs)))
 
     ordered_aggr_features = {
-        feat_group: {
-            feature_type: {tup[0]: NoIndent(tup[1]) for tup in sorted(instances, key=itemgetter(1), reverse=True)}
-            for feature_type, instances in features_dict.items()
+        feature_type: {
+            feat_group: {tup[0]: NoIndent(tup[1]) for tup in sorted(instances, key=itemgetter(1), reverse=True)}
+            for feat_group, instances in features_dict.items()
         }
-        for feat_group, features_dict in aggr_features.items()
+        for feature_type, features_dict in aggr_features.items()
     }
 
     ordered_grouped_by_elf_set = [

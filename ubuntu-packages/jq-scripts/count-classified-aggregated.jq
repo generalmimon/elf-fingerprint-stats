@@ -1,5 +1,4 @@
 del(.["$comment"])
 | .[].[] |= length
-| {total: (reduce (.[] | to_entries[]) as {$key, $value} ({}; .[$key] += $value)), absolute: .}
-| .total as $total
-| .["relative"] = (.absolute | .[] |= with_entries(.value /= $total[.key]))
+| map_values(.total = (. | add))
+| {absolute: ., relative: map_values(.total as $total | map_values(. / $total))}
