@@ -89,16 +89,16 @@ def main():
     feature_types_dict_template = {feature_type: [] for feature_type in inverse_map}
     grouped_by_elf_set = defaultdict(lambda: copy.deepcopy(feature_types_dict_template))
 
-    FEATURE_GROUPS = ['elf_unique', 'binary_pkg_unique', 'source_pkg_unique', 'not_unique']
-    feature_groups_dict_template = {feat_group: [] for feat_group in FEATURE_GROUPS}
-    elf_info_template = {feature_type: copy.deepcopy(feature_groups_dict_template) for feature_type in inverse_map}
+    UNIQ_CLASSES = ['elf_unique', 'binary_pkg_unique', 'source_pkg_unique', 'not_unique']
+    uniq_classes_dict_template = {uniq_class: [] for uniq_class in UNIQ_CLASSES}
+    elf_info_template = {feature_type: copy.deepcopy(uniq_classes_dict_template) for feature_type in inverse_map}
 
     packages_info = defaultdict(dict)
     for elf_path in json_from_elfs:
         packages_info[elf_path.pkg_path][elf_path.name] = copy.deepcopy(elf_info_template)
 
     packages_info = dict(packages_info)
-    aggr_features = {feature_type: copy.deepcopy(feature_groups_dict_template) for feature_type in inverse_map}
+    aggr_features = {feature_type: copy.deepcopy(uniq_classes_dict_template) for feature_type in inverse_map}
 
     for feature_type, instances_dict in inverse_map.items():
         for inst, elfs in instances_dict.items():
@@ -106,22 +106,22 @@ def main():
             num_binary_pkgs = len(set(elf_path.binary_pkg for elf_path in elfs))
             num_source_pkgs = len(set(elf_path.source_pkg for elf_path in elfs))
             if num_elfs == 1:
-                feat_group = 'elf_unique'
+                uniq_class = 'elf_unique'
             elif num_binary_pkgs == 1:
-                feat_group = 'binary_pkg_unique'
+                uniq_class = 'binary_pkg_unique'
             elif num_source_pkgs == 1:
-                feat_group = 'source_pkg_unique'
+                uniq_class = 'source_pkg_unique'
             else:
-                feat_group = 'not_unique'
+                uniq_class = 'not_unique'
                 grouped_by_elf_set[tuple(elfs)][feature_type].append(inst)
             for elf_path in elfs:
-                packages_info[elf_path.pkg_path][elf_path.name][feature_type][feat_group].append(inst)
-            aggr_features[feature_type][feat_group].append((inst, (num_source_pkgs, num_binary_pkgs, num_elfs)))
+                packages_info[elf_path.pkg_path][elf_path.name][feature_type][uniq_class].append(inst)
+            aggr_features[feature_type][uniq_class].append((inst, (num_source_pkgs, num_binary_pkgs, num_elfs)))
 
     ordered_aggr_features = {
         feature_type: {
-            feat_group: {tup[0]: NoIndent(tup[1]) for tup in sorted(instances, key=itemgetter(1), reverse=True)}
-            for feat_group, instances in features_dict.items()
+            uniq_class: {tup[0]: NoIndent(tup[1]) for tup in sorted(instances, key=itemgetter(1), reverse=True)}
+            for uniq_class, instances in features_dict.items()
         }
         for feature_type, features_dict in aggr_features.items()
     }
