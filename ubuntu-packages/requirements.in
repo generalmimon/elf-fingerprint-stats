@@ -1,0 +1,5 @@
+kaitaistruct
+pip-tools
+python-debian
+requests
+tqdm
