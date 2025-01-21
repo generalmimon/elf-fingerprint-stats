@@ -94,8 +94,7 @@ def plot_num_strings_by_len_classified(data_set: dict[int, dict[str, int]], outp
     ])
 
     # See https://stackoverflow.com/a/30305331/12940655
-    step = 2
-    bins = np.arange(min(data_set.keys()), 100 + step + 1, step)
+    bins = np.arange(min(data_set.keys()), 100 + 2)
     str_lens = np.clip(list(data_set.keys()), bins[0], bins[-1])
     uniq_class_labels = [label for _, label in UNIQ_CLASSES_AND_LABELS]
 
@@ -109,15 +108,17 @@ def plot_num_strings_by_len_classified(data_set: dict[int, dict[str, int]], outp
         orientation='horizontal',
         stacked=True,
         label=uniq_class_labels,
+        rwidth=0.8,
     )
-    ylabels = bins.astype(str)
-    ylabels[-1] = max(data_set.keys())
-    ax.set_yticks(bins)
+    yticks = bins[:-1:2] + 0.5
+    ylabels = bins[:-1:2].astype(str)
+    ylabels[-1] += '+'
+    ax.set_yticks(yticks)
     ax.set_yticklabels(ylabels)
     ax.legend(loc='lower right')
     ax.invert_yaxis()
     ax.xaxis.set_major_formatter(matplotlib.ticker.FuncFormatter(lambda x, _: f'{int(x):,}'))
-    ax.set_title("Number of strings extracted from ELFs grouped by length and classified by uniqueness", wrap=True)
+    ax.set_title("Number of strings extracted from ELFs grouped by length, classified by uniqueness", wrap=True)
 
     fig.savefig(output_filename)
 
