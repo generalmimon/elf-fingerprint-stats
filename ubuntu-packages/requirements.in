@@ -1,4 +1,6 @@
 kaitaistruct
+matplotlib
+numpy
 pip-tools
 python-debian
 requests

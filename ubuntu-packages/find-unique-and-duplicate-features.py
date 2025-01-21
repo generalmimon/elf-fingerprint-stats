@@ -118,6 +118,20 @@ def main():
                 packages_info[elf_path.pkg_path][elf_path.name][feature_type][uniq_class].append(inst)
             aggr_features[feature_type][uniq_class].append((inst, (num_source_pkgs, num_binary_pkgs, num_elfs)))
 
+    aggr_strings_by_len = defaultdict(lambda: copy.deepcopy(uniq_classes_dict_template))
+    for uniq_class, strings_list in aggr_features['strings'].items():
+        for s, _ in strings_list:
+            aggr_strings_by_len[len(s)][uniq_class].append(s)
+
+    ordered_aggr_strings_by_len = {
+        len_s: strings_dict
+        for len_s, strings_dict in sorted(aggr_strings_by_len.items(), key=itemgetter(0))
+    }
+    ordered_aggr_strings_by_len_counts = {
+        len_s: NoIndent({uniq_class: len(strings_list) for uniq_class, strings_list in strings_dict.items()})
+        for len_s, strings_dict in ordered_aggr_strings_by_len.items()
+    }
+
     ordered_aggr_features = {
         feature_type: {
             uniq_class: {tup[0]: NoIndent(tup[1]) for tup in sorted(instances, key=itemgetter(1), reverse=True)}
@@ -134,6 +148,12 @@ def main():
     with open(strings_dir / 'from-elfs-classified-aggregated.json', 'w', encoding='utf-8') as f:
         comment = 'The meaning of the numbers is [num_source_pkgs, num_binary_pkgs, num_elfs]'
         json.dump({'$comment': comment, **ordered_aggr_features}, f, ensure_ascii=False, allow_nan=False, indent=2, cls=NoIndentEncoder)
+
+    with open(strings_dir / 'from-elfs-classified-aggregated-strings-by-len.json', 'w', encoding='utf-8') as f:
+        json.dump(ordered_aggr_strings_by_len, f, ensure_ascii=False, allow_nan=False, indent=2)
+
+    with open(strings_dir / 'from-elfs-classified-aggregated-strings-by-len-counts.json', 'w', encoding='utf-8') as f:
+        json.dump(ordered_aggr_strings_by_len_counts, f, ensure_ascii=False, allow_nan=False, indent=2, cls=NoIndentEncoder)
 
     with open(strings_dir / 'from-elfs-classified-per-packages.json', 'w', encoding='utf-8') as f:
         json.dump(packages_info, f, ensure_ascii=False, allow_nan=False, indent=2)
