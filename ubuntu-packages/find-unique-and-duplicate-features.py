@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-from collections import defaultdict
+from collections import Counter, defaultdict
 import copy
 from dataclasses import dataclass
 import json
@@ -100,6 +100,8 @@ def main():
     packages_info = dict(packages_info)
     aggr_features = {feature_type: copy.deepcopy(uniq_classes_dict_template) for feature_type in inverse_map}
 
+    aggr_by_num_origins_counts = {key: {feature_type: Counter() for feature_type in inverse_map} for key in ('elfs', 'binary_pkgs', 'source_pkgs')}
+
     for feature_type, instances_dict in inverse_map.items():
         for inst, elfs in instances_dict.items():
             num_elfs = len(elfs)
@@ -117,6 +119,9 @@ def main():
             for elf_path in elfs:
                 packages_info[elf_path.pkg_path][elf_path.name][feature_type][uniq_class].append(inst)
             aggr_features[feature_type][uniq_class].append((inst, (num_source_pkgs, num_binary_pkgs, num_elfs)))
+            aggr_by_num_origins_counts['elfs'][feature_type][num_elfs] += 1
+            aggr_by_num_origins_counts['binary_pkgs'][feature_type][num_binary_pkgs] += 1
+            aggr_by_num_origins_counts['source_pkgs'][feature_type][num_source_pkgs] += 1
 
     aggr_strings_by_len = defaultdict(lambda: copy.deepcopy(uniq_classes_dict_template))
     for uniq_class, strings_list in aggr_features['strings'].items():
@@ -145,6 +150,11 @@ def main():
         for elf_paths, features_dict in sorted(grouped_by_elf_set.items(), key=lambda t: sum(len(instances) for instances in t[1].values()), reverse=True)
     ]
 
+    ordered_aggr_by_num_origins_counts = {
+        key: {feature_type: {k: v for k, v in sorted(counter.items(), key=itemgetter(0))} for feature_type, counter in counters_dict.items()}
+        for key, counters_dict in aggr_by_num_origins_counts.items()
+    }
+
     with open(strings_dir / 'from-elfs-classified-aggregated.json', 'w', encoding='utf-8') as f:
         comment = 'The meaning of the numbers is [num_source_pkgs, num_binary_pkgs, num_elfs]'
         json.dump({'$comment': comment, **ordered_aggr_features}, f, ensure_ascii=False, allow_nan=False, indent=2, cls=NoIndentEncoder)
@@ -154,6 +164,9 @@ def main():
 
     with open(strings_dir / 'from-elfs-classified-aggregated-strings-by-len-counts.json', 'w', encoding='utf-8') as f:
         json.dump(ordered_aggr_strings_by_len_counts, f, ensure_ascii=False, allow_nan=False, indent=2, cls=NoIndentEncoder)
+
+    with open(strings_dir / 'from-elfs-aggregated-by-num-origins-counts.json', 'w', encoding='utf-8') as f:
+        json.dump(ordered_aggr_by_num_origins_counts, f, ensure_ascii=False, allow_nan=False, indent=2)
 
     with open(strings_dir / 'from-elfs-classified-per-packages.json', 'w', encoding='utf-8') as f:
         json.dump(packages_info, f, ensure_ascii=False, allow_nan=False, indent=2)

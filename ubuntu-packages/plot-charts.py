@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 
+from collections.abc import Iterable
 import json
 from pathlib import Path
 import textwrap
 from typing import Any
 import matplotlib
+from matplotlib.axes import Axes
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -30,10 +32,9 @@ FEAT_TYPES_AND_LABELS = [
 ]
 
 
-def read_json_with_int_keys(file_path: Path) -> dict[int, Any]:
+def read_json(file_path: Path) -> dict[int, Any]:
     with open(file_path, 'r', encoding='utf-8') as f:
-        orig_dict = json.load(f)
-        return {int(k): v for k, v in orig_dict.items()}
+        return json.load(f)
 
 
 def plot_num_features_classified_absolute(data_set: dict[str, dict[str, int]], output_filename: Path):
@@ -123,6 +124,53 @@ def plot_num_strings_by_len_classified(data_set: dict[int, dict[str, int]], outp
     fig.savefig(output_filename)
 
 
+def plot_num_features_aggregated_by_num_origins(data_set: dict[str, dict[str, dict[str, int]]], output_filename: Path):
+    subplots_info = [
+        ('elfs', "grouped by the number of ELFs", "Number of ELFs"),
+        ('binary_pkgs', "grouped by the number of binary packages", "Number of binary packages"),
+        ('source_pkgs', "grouped by the number of source packages", "Number of source packages"),
+    ]
+
+    fig, axs = plt.subplots(1, len(subplots_info), layout='constrained', figsize=(15, 6), sharey=True)
+    axs: Iterable[Axes]
+
+    for subplot_info, ax in zip(subplots_info, axs, strict=True):
+        data_set_key, subplot_title, subplot_xlabel = subplot_info
+        data = [
+            list(data_set[data_set_key][feat_type].values())
+            for feat_type, _ in FEAT_TYPES_AND_LABELS
+        ]
+        feat_type_labels = [label for _, label in FEAT_TYPES_AND_LABELS]
+
+        bins = np.arange(1, 5 + 2)
+        num_origins = [
+            np.clip([int(k) for k in data_set[data_set_key][feat_type]], bins[0], bins[-1])
+            for feat_type, _ in FEAT_TYPES_AND_LABELS
+        ]
+        ax.hist(
+            num_origins,
+            bins=bins,
+            weights=data,
+            histtype='bar',
+            stacked=True,
+            label=feat_type_labels,
+            rwidth=0.75,
+        )
+        xlabels = bins[:-1].astype(str)
+        xlabels[-1] += '+'
+        ax.set_xticks(bins[:-1] + 0.5)
+        ax.set_xticklabels(xlabels)
+        ax.set_xlabel(subplot_xlabel)
+
+        ax.yaxis.set_major_formatter(matplotlib.ticker.FuncFormatter(lambda x, _: f'{int(x):,}'))
+        ax.legend(loc='upper right')
+        ax.set_title(subplot_title)
+
+    fig.suptitle("Number of features extracted from ELFs grouped by the number of ELFs/packages in which they occur", wrap=True)
+
+    fig.savefig(output_filename)
+
+
 def main():
     with open(strings_dir / 'from-elfs-classified-aggregated-counts.json', 'r', encoding='utf-8') as f:
         aggregated_counts = json.load(f)
@@ -136,9 +184,15 @@ def main():
         {feat_type: stats['total'] for feat_type, stats in aggregated_counts['absolute'].items()},
         charts_dir / 'from-elfs-num-features-classified-relative.svg'
     )
+    strings_by_len_orig = read_json(strings_dir / 'from-elfs-classified-aggregated-strings-by-len-counts.json')
     plot_num_strings_by_len_classified(
-        read_json_with_int_keys(strings_dir / 'from-elfs-classified-aggregated-strings-by-len-counts.json'),
+        {int(k): v for k, v in strings_by_len_orig.items()},
         charts_dir / 'from-elfs-num-strings-by-len-classified.svg'
+    )
+    features_by_num_origins_orig = read_json(strings_dir / 'from-elfs-aggregated-by-num-origins-counts.json')
+    plot_num_features_aggregated_by_num_origins(
+        features_by_num_origins_orig,
+        charts_dir / 'from-elfs-num-features-by-num-origins.svg'
     )
 
 
