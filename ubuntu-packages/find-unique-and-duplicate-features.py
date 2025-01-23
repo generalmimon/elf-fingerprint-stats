@@ -7,7 +7,7 @@ import json
 from operator import itemgetter
 from pathlib import Path
 import re
-import uuid
+from utils import NoIndent, NoIndentEncoder
 
 script_dir = Path(__file__).parent.resolve(True)
 strings_dir = script_dir / 'extracted-strings'
@@ -32,40 +32,6 @@ class ElfPath:
 
     def __str__(self) -> str:
         return f'{self.pkg_path}-{self.name}'
-
-# Adapted from https://stackoverflow.com/a/25935321/12940655
-class NoIndent:
-    def __init__(self, value):
-        self.value = value
-
-# Adapted from https://stackoverflow.com/a/25935321/12940655
-class NoIndentEncoder(json.JSONEncoder):
-    def __init__(self, *args, **kwargs):
-        super(NoIndentEncoder, self).__init__(*args, **kwargs)
-        self.kwargs = dict(kwargs)
-        del self.kwargs['indent']
-        self._replacement_map = {}
-
-    def _do_replacement_on_part(self, part: str):
-        if part.startswith('"@@'):
-            try:
-                return self._replacement_map[part[3:-3]]
-            except KeyError:
-                return part
-        else:
-            return part
-
-    def default(self, o):
-        if isinstance(o, NoIndent):
-            key = uuid.uuid4().hex
-            self._replacement_map[key] = json.dumps(o.value, **self.kwargs)
-            return "@@%s@@" % (key,)
-        else:
-            return super().default(o)
-
-    def iterencode(self, o, _one_shot = False):
-        parts = super().iterencode(o, _one_shot)
-        return map(self._do_replacement_on_part, parts)
 
 def read_from_elfs_json(json_path: Path) -> dict[ElfPath, dict[str, list[str]]]:
     with open(json_path, 'r', encoding='utf-8') as f:
