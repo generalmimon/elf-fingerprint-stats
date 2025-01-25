@@ -172,8 +172,7 @@ def plot_num_features_aggregated_by_num_origins(data_set: dict[str, dict[str, di
 
 
 def main():
-    with open(strings_dir / 'from-elfs-classified-aggregated-counts.json', 'r', encoding='utf-8') as f:
-        aggregated_counts = json.load(f)
+    aggregated_counts = read_json(strings_dir / 'from-elfs-classified-aggregated-counts.json')
 
     plot_num_features_classified_absolute(
         aggregated_counts['absolute'],
