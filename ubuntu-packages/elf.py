@@ -1,12 +1,13 @@
 # This is a generated file! Please edit source .ksy file and use kaitai-struct-compiler to rebuild
+# type: ignore
 
 import kaitaistruct
 from kaitaistruct import KaitaiStruct, KaitaiStream, BytesIO
-from enum import Enum
+from enum import IntEnum
 
 
-if getattr(kaitaistruct, 'API_VERSION', (0, 9)) < (0, 9):
-    raise Exception("Incompatible Kaitai Struct Python API: 0.9 or later is required, but you have %s" % (kaitaistruct.__version__))
+if getattr(kaitaistruct, 'API_VERSION', (0, 9)) < (0, 11):
+    raise Exception("Incompatible Kaitai Struct Python API: 0.11 or later is required, but you have %s" % (kaitaistruct.__version__))
 
 class Elf(KaitaiStruct):
     """
@@ -22,7 +23,7 @@ class Elf(KaitaiStruct):
        Source - https://docs.oracle.com/cd/E37838_01/html/E36783/glcfv.html
     """
 
-    class SymbolVisibility(Enum):
+    class SymbolVisibility(IntEnum):
         default = 0
         internal = 1
         hidden = 2
@@ -31,7 +32,7 @@ class Elf(KaitaiStruct):
         singleton = 5
         eliminate = 6
 
-    class SymbolBinding(Enum):
+    class SymbolBinding(IntEnum):
         local = 0
         global_symbol = 1
         weak = 2
@@ -42,11 +43,11 @@ class Elf(KaitaiStruct):
         proc14 = 14
         proc15 = 15
 
-    class Endian(Enum):
+    class Endian(IntEnum):
         le = 1
         be = 2
 
-    class ShType(Enum):
+    class ShType(IntEnum):
         null_type = 0
         progbits = 1
         symtab = 2
@@ -92,7 +93,7 @@ class Elf(KaitaiStruct):
         arm_debugoverlay = 1879048196
         arm_overlaysection = 1879048197
 
-    class OsAbi(Enum):
+    class OsAbi(IntEnum):
         system_v = 0
         hp_ux = 1
         netbsd = 2
@@ -114,7 +115,7 @@ class Elf(KaitaiStruct):
         arm = 97
         standalone = 255
 
-    class Machine(Enum):
+    class Machine(IntEnum):
         no_machine = 0
         m32 = 1
         sparc = 2
@@ -345,7 +346,7 @@ class Elf(KaitaiStruct):
         nios32 = 65211
         moxie_old = 65261
 
-    class SymbolType(Enum):
+    class SymbolType(IntEnum):
         no_type = 0
         object = 1
         func = 2
@@ -362,7 +363,7 @@ class Elf(KaitaiStruct):
         proc14 = 14
         proc15 = 15
 
-    class DynamicArrayTags(Enum):
+    class DynamicArrayTags(IntEnum):
         null = 0
         needed = 1
         pltrelsz = 2
@@ -468,11 +469,11 @@ class Elf(KaitaiStruct):
         used = 2147483646
         filter = 2147483647
 
-    class Bits(Enum):
+    class Bits(IntEnum):
         b32 = 1
         b64 = 2
 
-    class PhType(Enum):
+    class PhType(IntEnum):
         null_type = 0
         load = 1
         dynamic = 2
@@ -489,14 +490,14 @@ class Elf(KaitaiStruct):
         pax_flags = 1694766464
         arm_exidx = 1879048193
 
-    class ObjType(Enum):
+    class ObjType(IntEnum):
         no_file_type = 0
         relocatable = 1
         executable = 2
         shared = 3
         core = 4
 
-    class SectionHeaderIdxSpecial(Enum):
+    class SectionHeaderIdxSpecial(IntEnum):
         undefined = 0
         before = 65280
         after = 65281
@@ -531,7 +532,7 @@ class Elf(KaitaiStruct):
         def __init__(self, _io, _parent=None, _root=None):
             self._io = _io
             self._parent = _parent
-            self._root = _root if _root else self
+            self._root = _root
             self._read()
 
         def _read(self):
@@ -609,7 +610,7 @@ class Elf(KaitaiStruct):
             def __init__(self, _io, _parent=None, _root=None, _is_le=None):
                 self._io = _io
                 self._parent = _parent
-                self._root = _root if _root else self
+                self._root = _root
                 self._is_le = _is_le
                 self._read()
 
@@ -632,7 +633,7 @@ class Elf(KaitaiStruct):
             def __init__(self, _io, _parent=None, _root=None, _is_le=None):
                 self._io = _io
                 self._parent = _parent
-                self._root = _root if _root else self
+                self._root = _root
                 self._is_le = _is_le
                 self._read()
 
@@ -665,7 +666,7 @@ class Elf(KaitaiStruct):
             def __init__(self, _io, _parent=None, _root=None, _is_le=None):
                 self._io = _io
                 self._parent = _parent
-                self._root = _root if _root else self
+                self._root = _root
                 self._is_le = _is_le
                 self._read()
 
@@ -759,7 +760,7 @@ class Elf(KaitaiStruct):
                 def __init__(self, _io, _parent=None, _root=None, _is_le=None):
                     self._io = _io
                     self._parent = _parent
-                    self._root = _root if _root else self
+                    self._root = _root
                     self._is_le = _is_le
                     self._read()
 
@@ -782,7 +783,7 @@ class Elf(KaitaiStruct):
                 def __init__(self, _io, _parent=None, _root=None, _is_le=None):
                     self._io = _io
                     self._parent = _parent
-                    self._root = _root if _root else self
+                    self._root = _root
                     self._is_le = _is_le
                     self._read()
 
@@ -819,7 +820,7 @@ class Elf(KaitaiStruct):
                 def __init__(self, _io, _parent=None, _root=None, _is_le=None):
                     self._io = _io
                     self._parent = _parent
-                    self._root = _root if _root else self
+                    self._root = _root
                     self._is_le = _is_le
                     self._read()
 
@@ -894,7 +895,7 @@ class Elf(KaitaiStruct):
                     if hasattr(self, '_m_is_value_str'):
                         return self._m_is_value_str
 
-                    self._m_is_value_str =  ((self.value_or_ptr != 0) and ( ((self.tag_enum == Elf.DynamicArrayTags.needed) or (self.tag_enum == Elf.DynamicArrayTags.soname) or (self.tag_enum == Elf.DynamicArrayTags.rpath) or (self.tag_enum == Elf.DynamicArrayTags.runpath) or (self.tag_enum == Elf.DynamicArrayTags.sunw_auxiliary) or (self.tag_enum == Elf.DynamicArrayTags.sunw_filter) or (self.tag_enum == Elf.DynamicArrayTags.auxiliary) or (self.tag_enum == Elf.DynamicArrayTags.filter) or (self.tag_enum == Elf.DynamicArrayTags.config) or (self.tag_enum == Elf.DynamicArrayTags.depaudit) or (self.tag_enum == Elf.DynamicArrayTags.audit)) )) 
+                    self._m_is_value_str =  ((self.value_or_ptr != 0) and ( ((self.tag_enum == Elf.DynamicArrayTags.needed) or (self.tag_enum == Elf.DynamicArrayTags.soname) or (self.tag_enum == Elf.DynamicArrayTags.rpath) or (self.tag_enum == Elf.DynamicArrayTags.runpath) or (self.tag_enum == Elf.DynamicArrayTags.sunw_auxiliary) or (self.tag_enum == Elf.DynamicArrayTags.sunw_filter) or (self.tag_enum == Elf.DynamicArrayTags.auxiliary) or (self.tag_enum == Elf.DynamicArrayTags.filter) or (self.tag_enum == Elf.DynamicArrayTags.config) or (self.tag_enum == Elf.DynamicArrayTags.depaudit) or (self.tag_enum == Elf.DynamicArrayTags.audit)) ))
                     return getattr(self, '_m_is_value_str', None)
 
 
@@ -909,14 +910,14 @@ class Elf(KaitaiStruct):
                     io.seek(self.offset)
                     if self._is_le:
                         _on = self.type
-                        if _on == Elf.PhType.interp:
-                            self._raw__m_data = io.read_bytes(self.filesz)
-                            _io__raw__m_data = KaitaiStream(BytesIO(self._raw__m_data))
-                            self._m_data = Elf.EndianElf.ProgramHeader.PhInterpreter(_io__raw__m_data, self, self._root, self._is_le)
-                        elif _on == Elf.PhType.dynamic:
+                        if _on == Elf.PhType.dynamic:
                             self._raw__m_data = io.read_bytes(self.filesz)
                             _io__raw__m_data = KaitaiStream(BytesIO(self._raw__m_data))
                             self._m_data = Elf.EndianElf.ProgramHeader.PhDynamic(_io__raw__m_data, self, self._root, self._is_le)
+                        elif _on == Elf.PhType.interp:
+                            self._raw__m_data = io.read_bytes(self.filesz)
+                            _io__raw__m_data = KaitaiStream(BytesIO(self._raw__m_data))
+                            self._m_data = Elf.EndianElf.ProgramHeader.PhInterpreter(_io__raw__m_data, self, self._root, self._is_le)
                         elif _on == Elf.PhType.note:
                             self._raw__m_data = io.read_bytes(self.filesz)
                             _io__raw__m_data = KaitaiStream(BytesIO(self._raw__m_data))
@@ -925,14 +926,14 @@ class Elf(KaitaiStruct):
                             self._m_data = io.read_bytes(self.filesz)
                     else:
                         _on = self.type
-                        if _on == Elf.PhType.interp:
-                            self._raw__m_data = io.read_bytes(self.filesz)
-                            _io__raw__m_data = KaitaiStream(BytesIO(self._raw__m_data))
-                            self._m_data = Elf.EndianElf.ProgramHeader.PhInterpreter(_io__raw__m_data, self, self._root, self._is_le)
-                        elif _on == Elf.PhType.dynamic:
+                        if _on == Elf.PhType.dynamic:
                             self._raw__m_data = io.read_bytes(self.filesz)
                             _io__raw__m_data = KaitaiStream(BytesIO(self._raw__m_data))
                             self._m_data = Elf.EndianElf.ProgramHeader.PhDynamic(_io__raw__m_data, self, self._root, self._is_le)
+                        elif _on == Elf.PhType.interp:
+                            self._raw__m_data = io.read_bytes(self.filesz)
+                            _io__raw__m_data = KaitaiStream(BytesIO(self._raw__m_data))
+                            self._m_data = Elf.EndianElf.ProgramHeader.PhInterpreter(_io__raw__m_data, self, self._root, self._is_le)
                         elif _on == Elf.PhType.note:
                             self._raw__m_data = io.read_bytes(self.filesz)
                             _io__raw__m_data = KaitaiStream(BytesIO(self._raw__m_data))
@@ -967,7 +968,7 @@ class Elf(KaitaiStruct):
             def __init__(self, ofs_start, _io, _parent=None, _root=None, _is_le=None):
                 self._io = _io
                 self._parent = _parent
-                self._root = _root if _root else self
+                self._root = _root
                 self._is_le = _is_le
                 self.ofs_start = ofs_start
                 self._read()
@@ -1001,11 +1002,11 @@ class Elf(KaitaiStruct):
 
                 if self.ofs_next != 0:
                     _pos = self._io.pos()
-                    self._io.seek((self.ofs_start + self.ofs_next))
+                    self._io.seek(self.ofs_start + self.ofs_next)
                     if self._is_le:
-                        self._m_next = Elf.EndianElf.VersionNeededEntry((self.ofs_next + self.ofs_start), self._io, self, self._root, self._is_le)
+                        self._m_next = Elf.EndianElf.VersionNeededEntry(self.ofs_next + self.ofs_start, self._io, self, self._root, self._is_le)
                     else:
-                        self._m_next = Elf.EndianElf.VersionNeededEntry((self.ofs_next + self.ofs_start), self._io, self, self._root, self._is_le)
+                        self._m_next = Elf.EndianElf.VersionNeededEntry(self.ofs_next + self.ofs_start, self._io, self, self._root, self._is_le)
                     self._io.seek(_pos)
 
                 return getattr(self, '_m_next', None)
@@ -1016,7 +1017,7 @@ class Elf(KaitaiStruct):
                     return self._m_auxiliary_entries
 
                 _pos = self._io.pos()
-                self._io.seek((self.ofs_start + self.ofs_vernaux))
+                self._io.seek(self.ofs_start + self.ofs_vernaux)
                 if self._is_le:
                     self._m_auxiliary_entries = []
                     for i in range(self.num_verneed_aux_entries):
@@ -1035,7 +1036,7 @@ class Elf(KaitaiStruct):
             def __init__(self, ofs_start, _io, _parent=None, _root=None, _is_le=None):
                 self._io = _io
                 self._parent = _parent
-                self._root = _root if _root else self
+                self._root = _root
                 self._is_le = _is_le
                 self.ofs_start = ofs_start
                 self._read()
@@ -1073,11 +1074,11 @@ class Elf(KaitaiStruct):
 
                 if self.ofs_next != 0:
                     _pos = self._io.pos()
-                    self._io.seek((self.ofs_start + self.ofs_next))
+                    self._io.seek(self.ofs_start + self.ofs_next)
                     if self._is_le:
-                        self._m_next = Elf.EndianElf.VersionDefinedEntry((self.ofs_next + self.ofs_start), self._io, self, self._root, self._is_le)
+                        self._m_next = Elf.EndianElf.VersionDefinedEntry(self.ofs_next + self.ofs_start, self._io, self, self._root, self._is_le)
                     else:
-                        self._m_next = Elf.EndianElf.VersionDefinedEntry((self.ofs_next + self.ofs_start), self._io, self, self._root, self._is_le)
+                        self._m_next = Elf.EndianElf.VersionDefinedEntry(self.ofs_next + self.ofs_start, self._io, self, self._root, self._is_le)
                     self._io.seek(_pos)
 
                 return getattr(self, '_m_next', None)
@@ -1088,7 +1089,7 @@ class Elf(KaitaiStruct):
                     return self._m_auxiliary_entries
 
                 _pos = self._io.pos()
-                self._io.seek((self.ofs_start + self.ofs_verdaux))
+                self._io.seek(self.ofs_start + self.ofs_verdaux)
                 if self._is_le:
                     self._m_auxiliary_entries = []
                     for i in range(self.num_verdef_aux_entries):
@@ -1115,7 +1116,7 @@ class Elf(KaitaiStruct):
             def __init__(self, _io, _parent=None, _root=None, _is_le=None):
                 self._io = _io
                 self._parent = _parent
-                self._root = _root if _root else self
+                self._root = _root
                 self._is_le = _is_le
                 self._read()
 
@@ -1207,7 +1208,7 @@ class Elf(KaitaiStruct):
                 if hasattr(self, '_m_is_value_str'):
                     return self._m_is_value_str
 
-                self._m_is_value_str =  ((self.value_or_ptr != 0) and ( ((self.tag_enum == Elf.DynamicArrayTags.needed) or (self.tag_enum == Elf.DynamicArrayTags.soname) or (self.tag_enum == Elf.DynamicArrayTags.rpath) or (self.tag_enum == Elf.DynamicArrayTags.runpath) or (self.tag_enum == Elf.DynamicArrayTags.sunw_auxiliary) or (self.tag_enum == Elf.DynamicArrayTags.sunw_filter) or (self.tag_enum == Elf.DynamicArrayTags.auxiliary) or (self.tag_enum == Elf.DynamicArrayTags.filter) or (self.tag_enum == Elf.DynamicArrayTags.config) or (self.tag_enum == Elf.DynamicArrayTags.depaudit) or (self.tag_enum == Elf.DynamicArrayTags.audit)) )) 
+                self._m_is_value_str =  ((self.value_or_ptr != 0) and ( ((self.tag_enum == Elf.DynamicArrayTags.needed) or (self.tag_enum == Elf.DynamicArrayTags.soname) or (self.tag_enum == Elf.DynamicArrayTags.rpath) or (self.tag_enum == Elf.DynamicArrayTags.runpath) or (self.tag_enum == Elf.DynamicArrayTags.sunw_auxiliary) or (self.tag_enum == Elf.DynamicArrayTags.sunw_filter) or (self.tag_enum == Elf.DynamicArrayTags.auxiliary) or (self.tag_enum == Elf.DynamicArrayTags.filter) or (self.tag_enum == Elf.DynamicArrayTags.config) or (self.tag_enum == Elf.DynamicArrayTags.depaudit) or (self.tag_enum == Elf.DynamicArrayTags.audit)) ))
                 return getattr(self, '_m_is_value_str', None)
 
 
@@ -1215,7 +1216,7 @@ class Elf(KaitaiStruct):
             def __init__(self, _io, _parent=None, _root=None, _is_le=None):
                 self._io = _io
                 self._parent = _parent
-                self._root = _root if _root else self
+                self._root = _root
                 self._is_le = _is_le
                 self._read()
 
@@ -1324,7 +1325,7 @@ class Elf(KaitaiStruct):
                 if hasattr(self, '_m_linked_section'):
                     return self._m_linked_section
 
-                if  ((self.linked_section_idx != Elf.SectionHeaderIdxSpecial.undefined.value) and (self.linked_section_idx < self._root.header.qty_section_header)) :
+                if  ((self.linked_section_idx != int(Elf.SectionHeaderIdxSpecial.undefined)) and (self.linked_section_idx < self._root.header.qty_section_header)) :
                     self._m_linked_section = self._root.header.section_headers[self.linked_section_idx]
 
                 return getattr(self, '_m_linked_section', None)
@@ -1340,35 +1341,7 @@ class Elf(KaitaiStruct):
                     io.seek(self.ofs_body)
                     if self._is_le:
                         _on = self.type
-                        if _on == Elf.ShType.gnu_versym:
-                            self._raw__m_body = io.read_bytes(self.len_body)
-                            _io__raw__m_body = KaitaiStream(BytesIO(self._raw__m_body))
-                            self._m_body = Elf.EndianElf.VersymSection(_io__raw__m_body, self, self._root, self._is_le)
-                        elif _on == Elf.ShType.rel:
-                            self._raw__m_body = io.read_bytes(self.len_body)
-                            _io__raw__m_body = KaitaiStream(BytesIO(self._raw__m_body))
-                            self._m_body = Elf.EndianElf.RelocationSection(False, _io__raw__m_body, self, self._root, self._is_le)
-                        elif _on == Elf.ShType.note:
-                            self._raw__m_body = io.read_bytes(self.len_body)
-                            _io__raw__m_body = KaitaiStream(BytesIO(self._raw__m_body))
-                            self._m_body = Elf.EndianElf.NoteSection(_io__raw__m_body, self, self._root, self._is_le)
-                        elif _on == Elf.ShType.symtab:
-                            self._raw__m_body = io.read_bytes(self.len_body)
-                            _io__raw__m_body = KaitaiStream(BytesIO(self._raw__m_body))
-                            self._m_body = Elf.EndianElf.DynsymSection(_io__raw__m_body, self, self._root, self._is_le)
-                        elif _on == Elf.ShType.gnu_verneed:
-                            self._raw__m_body = io.read_bytes(self.len_body)
-                            _io__raw__m_body = KaitaiStream(BytesIO(self._raw__m_body))
-                            self._m_body = Elf.EndianElf.VerneedSection(_io__raw__m_body, self, self._root, self._is_le)
-                        elif _on == Elf.ShType.strtab:
-                            self._raw__m_body = io.read_bytes(self.len_body)
-                            _io__raw__m_body = KaitaiStream(BytesIO(self._raw__m_body))
-                            self._m_body = Elf.EndianElf.StringsStruct(_io__raw__m_body, self, self._root, self._is_le)
-                        elif _on == Elf.ShType.gnu_verdef:
-                            self._raw__m_body = io.read_bytes(self.len_body)
-                            _io__raw__m_body = KaitaiStream(BytesIO(self._raw__m_body))
-                            self._m_body = Elf.EndianElf.VerdefSection(_io__raw__m_body, self, self._root, self._is_le)
-                        elif _on == Elf.ShType.dynamic:
+                        if _on == Elf.ShType.dynamic:
                             self._raw__m_body = io.read_bytes(self.len_body)
                             _io__raw__m_body = KaitaiStream(BytesIO(self._raw__m_body))
                             self._m_body = Elf.EndianElf.DynamicSection(_io__raw__m_body, self, self._root, self._is_le)
@@ -1376,43 +1349,43 @@ class Elf(KaitaiStruct):
                             self._raw__m_body = io.read_bytes(self.len_body)
                             _io__raw__m_body = KaitaiStream(BytesIO(self._raw__m_body))
                             self._m_body = Elf.EndianElf.DynsymSection(_io__raw__m_body, self, self._root, self._is_le)
+                        elif _on == Elf.ShType.gnu_verdef:
+                            self._raw__m_body = io.read_bytes(self.len_body)
+                            _io__raw__m_body = KaitaiStream(BytesIO(self._raw__m_body))
+                            self._m_body = Elf.EndianElf.VerdefSection(_io__raw__m_body, self, self._root, self._is_le)
+                        elif _on == Elf.ShType.gnu_verneed:
+                            self._raw__m_body = io.read_bytes(self.len_body)
+                            _io__raw__m_body = KaitaiStream(BytesIO(self._raw__m_body))
+                            self._m_body = Elf.EndianElf.VerneedSection(_io__raw__m_body, self, self._root, self._is_le)
+                        elif _on == Elf.ShType.gnu_versym:
+                            self._raw__m_body = io.read_bytes(self.len_body)
+                            _io__raw__m_body = KaitaiStream(BytesIO(self._raw__m_body))
+                            self._m_body = Elf.EndianElf.VersymSection(_io__raw__m_body, self, self._root, self._is_le)
+                        elif _on == Elf.ShType.note:
+                            self._raw__m_body = io.read_bytes(self.len_body)
+                            _io__raw__m_body = KaitaiStream(BytesIO(self._raw__m_body))
+                            self._m_body = Elf.EndianElf.NoteSection(_io__raw__m_body, self, self._root, self._is_le)
+                        elif _on == Elf.ShType.rel:
+                            self._raw__m_body = io.read_bytes(self.len_body)
+                            _io__raw__m_body = KaitaiStream(BytesIO(self._raw__m_body))
+                            self._m_body = Elf.EndianElf.RelocationSection(False, _io__raw__m_body, self, self._root, self._is_le)
                         elif _on == Elf.ShType.rela:
                             self._raw__m_body = io.read_bytes(self.len_body)
                             _io__raw__m_body = KaitaiStream(BytesIO(self._raw__m_body))
                             self._m_body = Elf.EndianElf.RelocationSection(True, _io__raw__m_body, self, self._root, self._is_le)
+                        elif _on == Elf.ShType.strtab:
+                            self._raw__m_body = io.read_bytes(self.len_body)
+                            _io__raw__m_body = KaitaiStream(BytesIO(self._raw__m_body))
+                            self._m_body = Elf.EndianElf.StringsStruct(_io__raw__m_body, self, self._root, self._is_le)
+                        elif _on == Elf.ShType.symtab:
+                            self._raw__m_body = io.read_bytes(self.len_body)
+                            _io__raw__m_body = KaitaiStream(BytesIO(self._raw__m_body))
+                            self._m_body = Elf.EndianElf.DynsymSection(_io__raw__m_body, self, self._root, self._is_le)
                         else:
                             self._m_body = io.read_bytes(self.len_body)
                     else:
                         _on = self.type
-                        if _on == Elf.ShType.gnu_versym:
-                            self._raw__m_body = io.read_bytes(self.len_body)
-                            _io__raw__m_body = KaitaiStream(BytesIO(self._raw__m_body))
-                            self._m_body = Elf.EndianElf.VersymSection(_io__raw__m_body, self, self._root, self._is_le)
-                        elif _on == Elf.ShType.rel:
-                            self._raw__m_body = io.read_bytes(self.len_body)
-                            _io__raw__m_body = KaitaiStream(BytesIO(self._raw__m_body))
-                            self._m_body = Elf.EndianElf.RelocationSection(False, _io__raw__m_body, self, self._root, self._is_le)
-                        elif _on == Elf.ShType.note:
-                            self._raw__m_body = io.read_bytes(self.len_body)
-                            _io__raw__m_body = KaitaiStream(BytesIO(self._raw__m_body))
-                            self._m_body = Elf.EndianElf.NoteSection(_io__raw__m_body, self, self._root, self._is_le)
-                        elif _on == Elf.ShType.symtab:
-                            self._raw__m_body = io.read_bytes(self.len_body)
-                            _io__raw__m_body = KaitaiStream(BytesIO(self._raw__m_body))
-                            self._m_body = Elf.EndianElf.DynsymSection(_io__raw__m_body, self, self._root, self._is_le)
-                        elif _on == Elf.ShType.gnu_verneed:
-                            self._raw__m_body = io.read_bytes(self.len_body)
-                            _io__raw__m_body = KaitaiStream(BytesIO(self._raw__m_body))
-                            self._m_body = Elf.EndianElf.VerneedSection(_io__raw__m_body, self, self._root, self._is_le)
-                        elif _on == Elf.ShType.strtab:
-                            self._raw__m_body = io.read_bytes(self.len_body)
-                            _io__raw__m_body = KaitaiStream(BytesIO(self._raw__m_body))
-                            self._m_body = Elf.EndianElf.StringsStruct(_io__raw__m_body, self, self._root, self._is_le)
-                        elif _on == Elf.ShType.gnu_verdef:
-                            self._raw__m_body = io.read_bytes(self.len_body)
-                            _io__raw__m_body = KaitaiStream(BytesIO(self._raw__m_body))
-                            self._m_body = Elf.EndianElf.VerdefSection(_io__raw__m_body, self, self._root, self._is_le)
-                        elif _on == Elf.ShType.dynamic:
+                        if _on == Elf.ShType.dynamic:
                             self._raw__m_body = io.read_bytes(self.len_body)
                             _io__raw__m_body = KaitaiStream(BytesIO(self._raw__m_body))
                             self._m_body = Elf.EndianElf.DynamicSection(_io__raw__m_body, self, self._root, self._is_le)
@@ -1420,10 +1393,38 @@ class Elf(KaitaiStruct):
                             self._raw__m_body = io.read_bytes(self.len_body)
                             _io__raw__m_body = KaitaiStream(BytesIO(self._raw__m_body))
                             self._m_body = Elf.EndianElf.DynsymSection(_io__raw__m_body, self, self._root, self._is_le)
+                        elif _on == Elf.ShType.gnu_verdef:
+                            self._raw__m_body = io.read_bytes(self.len_body)
+                            _io__raw__m_body = KaitaiStream(BytesIO(self._raw__m_body))
+                            self._m_body = Elf.EndianElf.VerdefSection(_io__raw__m_body, self, self._root, self._is_le)
+                        elif _on == Elf.ShType.gnu_verneed:
+                            self._raw__m_body = io.read_bytes(self.len_body)
+                            _io__raw__m_body = KaitaiStream(BytesIO(self._raw__m_body))
+                            self._m_body = Elf.EndianElf.VerneedSection(_io__raw__m_body, self, self._root, self._is_le)
+                        elif _on == Elf.ShType.gnu_versym:
+                            self._raw__m_body = io.read_bytes(self.len_body)
+                            _io__raw__m_body = KaitaiStream(BytesIO(self._raw__m_body))
+                            self._m_body = Elf.EndianElf.VersymSection(_io__raw__m_body, self, self._root, self._is_le)
+                        elif _on == Elf.ShType.note:
+                            self._raw__m_body = io.read_bytes(self.len_body)
+                            _io__raw__m_body = KaitaiStream(BytesIO(self._raw__m_body))
+                            self._m_body = Elf.EndianElf.NoteSection(_io__raw__m_body, self, self._root, self._is_le)
+                        elif _on == Elf.ShType.rel:
+                            self._raw__m_body = io.read_bytes(self.len_body)
+                            _io__raw__m_body = KaitaiStream(BytesIO(self._raw__m_body))
+                            self._m_body = Elf.EndianElf.RelocationSection(False, _io__raw__m_body, self, self._root, self._is_le)
                         elif _on == Elf.ShType.rela:
                             self._raw__m_body = io.read_bytes(self.len_body)
                             _io__raw__m_body = KaitaiStream(BytesIO(self._raw__m_body))
                             self._m_body = Elf.EndianElf.RelocationSection(True, _io__raw__m_body, self, self._root, self._is_le)
+                        elif _on == Elf.ShType.strtab:
+                            self._raw__m_body = io.read_bytes(self.len_body)
+                            _io__raw__m_body = KaitaiStream(BytesIO(self._raw__m_body))
+                            self._m_body = Elf.EndianElf.StringsStruct(_io__raw__m_body, self, self._root, self._is_le)
+                        elif _on == Elf.ShType.symtab:
+                            self._raw__m_body = io.read_bytes(self.len_body)
+                            _io__raw__m_body = KaitaiStream(BytesIO(self._raw__m_body))
+                            self._m_body = Elf.EndianElf.DynsymSection(_io__raw__m_body, self, self._root, self._is_le)
                         else:
                             self._m_body = io.read_bytes(self.len_body)
                     io.seek(_pos)
@@ -1469,7 +1470,7 @@ class Elf(KaitaiStruct):
             def __init__(self, has_addend, _io, _parent=None, _root=None, _is_le=None):
                 self._io = _io
                 self._parent = _parent
-                self._root = _root if _root else self
+                self._root = _root
                 self._is_le = _is_le
                 self.has_addend = has_addend
                 self._read()
@@ -1503,7 +1504,7 @@ class Elf(KaitaiStruct):
             def __init__(self, _io, _parent=None, _root=None, _is_le=None):
                 self._io = _io
                 self._parent = _parent
-                self._root = _root if _root else self
+                self._root = _root
                 self._is_le = _is_le
                 self._read()
 
@@ -1548,7 +1549,7 @@ class Elf(KaitaiStruct):
             def __init__(self, _io, _parent=None, _root=None, _is_le=None):
                 self._io = _io
                 self._parent = _parent
-                self._root = _root if _root else self
+                self._root = _root
                 self._is_le = _is_le
                 self._read()
 
@@ -1571,7 +1572,7 @@ class Elf(KaitaiStruct):
             def __init__(self, _io, _parent=None, _root=None, _is_le=None):
                 self._io = _io
                 self._parent = _parent
-                self._root = _root if _root else self
+                self._root = _root
                 self._is_le = _is_le
                 self._read()
 
@@ -1612,7 +1613,7 @@ class Elf(KaitaiStruct):
             def __init__(self, _io, _parent=None, _root=None, _is_le=None):
                 self._io = _io
                 self._parent = _parent
-                self._root = _root if _root else self
+                self._root = _root
                 self._is_le = _is_le
                 self._read()
 
@@ -1643,7 +1644,7 @@ class Elf(KaitaiStruct):
                 if hasattr(self, '_m_hidden'):
                     return self._m_hidden
 
-                self._m_hidden = (self.object_file_version & 32768) != 0
+                self._m_hidden = self.object_file_version & 32768 != 0
                 return getattr(self, '_m_hidden', None)
 
 
@@ -1651,7 +1652,7 @@ class Elf(KaitaiStruct):
             def __init__(self, _io, _parent=None, _root=None, _is_le=None):
                 self._io = _io
                 self._parent = _parent
-                self._root = _root if _root else self
+                self._root = _root
                 self._is_le = _is_le
                 self._read()
 
@@ -1714,7 +1715,7 @@ class Elf(KaitaiStruct):
             def __init__(self, _io, _parent=None, _root=None, _is_le=None):
                 self._io = _io
                 self._parent = _parent
-                self._root = _root if _root else self
+                self._root = _root
                 self._is_le = _is_le
                 self._read()
 
@@ -1771,7 +1772,7 @@ class Elf(KaitaiStruct):
                 if hasattr(self, '_m_is_sh_idx_reserved'):
                     return self._m_is_sh_idx_reserved
 
-                self._m_is_sh_idx_reserved =  ((self.sh_idx >= self._root.sh_idx_lo_reserved) and (self.sh_idx <= self._root.sh_idx_hi_reserved)) 
+                self._m_is_sh_idx_reserved =  ((self.sh_idx >= self._root.sh_idx_lo_reserved) and (self.sh_idx <= self._root.sh_idx_hi_reserved))
                 return getattr(self, '_m_is_sh_idx_reserved', None)
 
             @property
@@ -1779,7 +1780,7 @@ class Elf(KaitaiStruct):
                 if hasattr(self, '_m_is_sh_idx_os'):
                     return self._m_is_sh_idx_os
 
-                self._m_is_sh_idx_os =  ((self.sh_idx >= self._root.sh_idx_lo_os) and (self.sh_idx <= self._root.sh_idx_hi_os)) 
+                self._m_is_sh_idx_os =  ((self.sh_idx >= self._root.sh_idx_lo_os) and (self.sh_idx <= self._root.sh_idx_hi_os))
                 return getattr(self, '_m_is_sh_idx_os', None)
 
             @property
@@ -1787,7 +1788,7 @@ class Elf(KaitaiStruct):
                 if hasattr(self, '_m_is_sh_idx_proc'):
                     return self._m_is_sh_idx_proc
 
-                self._m_is_sh_idx_proc =  ((self.sh_idx >= self._root.sh_idx_lo_proc) and (self.sh_idx <= self._root.sh_idx_hi_proc)) 
+                self._m_is_sh_idx_proc =  ((self.sh_idx >= self._root.sh_idx_lo_proc) and (self.sh_idx <= self._root.sh_idx_hi_proc))
                 return getattr(self, '_m_is_sh_idx_proc', None)
 
             @property
@@ -1803,7 +1804,7 @@ class Elf(KaitaiStruct):
                 if hasattr(self, '_m_visibility'):
                     return self._m_visibility
 
-                self._m_visibility = KaitaiStream.resolve_enum(Elf.SymbolVisibility, (self.other & 3))
+                self._m_visibility = KaitaiStream.resolve_enum(Elf.SymbolVisibility, self.other & 3)
                 return getattr(self, '_m_visibility', None)
 
             @property
@@ -1844,7 +1845,7 @@ class Elf(KaitaiStruct):
             def __init__(self, _io, _parent=None, _root=None, _is_le=None):
                 self._io = _io
                 self._parent = _parent
-                self._root = _root if _root else self
+                self._root = _root
                 self._is_le = _is_le
                 self._read()
 
@@ -1877,7 +1878,7 @@ class Elf(KaitaiStruct):
             def __init__(self, _io, _parent=None, _root=None, _is_le=None):
                 self._io = _io
                 self._parent = _parent
-                self._root = _root if _root else self
+                self._root = _root
                 self._is_le = _is_le
                 self._read()
 
@@ -1894,25 +1895,25 @@ class Elf(KaitaiStruct):
                 self.len_descriptor = self._io.read_u4le()
                 self.type = self._io.read_u4le()
                 self.name = KaitaiStream.bytes_terminate(self._io.read_bytes(self.len_name), 0, False)
-                self.name_padding = self._io.read_bytes((-(self.len_name) % 4))
+                self.name_padding = self._io.read_bytes(-(self.len_name) % 4)
                 self.descriptor = self._io.read_bytes(self.len_descriptor)
-                self.descriptor_padding = self._io.read_bytes((-(self.len_descriptor) % 4))
+                self.descriptor_padding = self._io.read_bytes(-(self.len_descriptor) % 4)
 
             def _read_be(self):
                 self.len_name = self._io.read_u4be()
                 self.len_descriptor = self._io.read_u4be()
                 self.type = self._io.read_u4be()
                 self.name = KaitaiStream.bytes_terminate(self._io.read_bytes(self.len_name), 0, False)
-                self.name_padding = self._io.read_bytes((-(self.len_name) % 4))
+                self.name_padding = self._io.read_bytes(-(self.len_name) % 4)
                 self.descriptor = self._io.read_bytes(self.len_descriptor)
-                self.descriptor_padding = self._io.read_bytes((-(self.len_descriptor) % 4))
+                self.descriptor_padding = self._io.read_bytes(-(self.len_descriptor) % 4)
 
 
         class StringsStruct(KaitaiStruct):
             def __init__(self, _io, _parent=None, _root=None, _is_le=None):
                 self._io = _io
                 self._parent = _parent
-                self._root = _root if _root else self
+                self._root = _root
                 self._is_le = _is_le
                 self._read()
 
@@ -1945,7 +1946,7 @@ class Elf(KaitaiStruct):
             def __init__(self, _io, _parent=None, _root=None, _is_le=None):
                 self._io = _io
                 self._parent = _parent
-                self._root = _root if _root else self
+                self._root = _root
                 self._is_le = _is_le
                 self._read()
 
@@ -1977,7 +1978,7 @@ class Elf(KaitaiStruct):
                 def __init__(self, _io, _parent=None, _root=None, _is_le=None):
                     self._io = _io
                     self._parent = _parent
-                    self._root = _root if _root else self
+                    self._root = _root
                     self._is_le = _is_le
                     self._read()
 
@@ -2000,7 +2001,7 @@ class Elf(KaitaiStruct):
                     if hasattr(self, '_m_hidden'):
                         return self._m_hidden
 
-                    self._m_hidden = (self.symbol_version_raw & 32768) != 0
+                    self._m_hidden = self.symbol_version_raw & 32768 != 0
                     return getattr(self, '_m_hidden', None)
 
                 @property
@@ -2008,7 +2009,7 @@ class Elf(KaitaiStruct):
                     if hasattr(self, '_m_version'):
                         return self._m_version
 
-                    self._m_version = (self.symbol_version_raw & 32767)
+                    self._m_version = self.symbol_version_raw & 32767
                     return getattr(self, '_m_version', None)
 
 
@@ -2070,7 +2071,7 @@ class Elf(KaitaiStruct):
             if hasattr(self, '_m_section_names'):
                 return self._m_section_names
 
-            if  ((self.section_names_idx != Elf.SectionHeaderIdxSpecial.undefined.value) and (self.section_names_idx < self._root.header.qty_section_header)) :
+            if  ((self.section_names_idx != int(Elf.SectionHeaderIdxSpecial.undefined)) and (self.section_names_idx < self._root.header.qty_section_header)) :
                 _pos = self._io.pos()
                 self._io.seek(self.section_headers[self.section_names_idx].ofs_body)
                 if self._is_le:
@@ -2090,7 +2091,7 @@ class Elf(KaitaiStruct):
         def __init__(self, value, _io, _parent=None, _root=None):
             self._io = _io
             self._parent = _parent
-            self._root = _root if _root else self
+            self._root = _root
             self.value = value
             self._read()
 
@@ -2103,7 +2104,7 @@ class Elf(KaitaiStruct):
             if hasattr(self, '_m_singleton'):
                 return self._m_singleton
 
-            self._m_singleton = (self.value & 33554432) != 0
+            self._m_singleton = self.value & 33554432 != 0
             return getattr(self, '_m_singleton', None)
 
         @property
@@ -2111,7 +2112,7 @@ class Elf(KaitaiStruct):
             if hasattr(self, '_m_nocommon'):
                 return self._m_nocommon
 
-            self._m_nocommon = (self.value & 1073741824) != 0
+            self._m_nocommon = self.value & 1073741824 != 0
             return getattr(self, '_m_nocommon', None)
 
         @property
@@ -2119,7 +2120,7 @@ class Elf(KaitaiStruct):
             if hasattr(self, '_m_ignmuldef'):
                 return self._m_ignmuldef
 
-            self._m_ignmuldef = (self.value & 262144) != 0
+            self._m_ignmuldef = self.value & 262144 != 0
             return getattr(self, '_m_ignmuldef', None)
 
         @property
@@ -2127,7 +2128,7 @@ class Elf(KaitaiStruct):
             if hasattr(self, '_m_weakfilter'):
                 return self._m_weakfilter
 
-            self._m_weakfilter = (self.value & 536870912) != 0
+            self._m_weakfilter = self.value & 536870912 != 0
             return getattr(self, '_m_weakfilter', None)
 
         @property
@@ -2136,7 +2137,7 @@ class Elf(KaitaiStruct):
             if hasattr(self, '_m_loadfltr'):
                 return self._m_loadfltr
 
-            self._m_loadfltr = (self.value & 16) != 0
+            self._m_loadfltr = self.value & 16 != 0
             return getattr(self, '_m_loadfltr', None)
 
         @property
@@ -2145,7 +2146,7 @@ class Elf(KaitaiStruct):
             if hasattr(self, '_m_initfirst'):
                 return self._m_initfirst
 
-            self._m_initfirst = (self.value & 32) != 0
+            self._m_initfirst = self.value & 32 != 0
             return getattr(self, '_m_initfirst', None)
 
         @property
@@ -2154,7 +2155,7 @@ class Elf(KaitaiStruct):
             if hasattr(self, '_m_symintpose'):
                 return self._m_symintpose
 
-            self._m_symintpose = (self.value & 8388608) != 0
+            self._m_symintpose = self.value & 8388608 != 0
             return getattr(self, '_m_symintpose', None)
 
         @property
@@ -2162,7 +2163,7 @@ class Elf(KaitaiStruct):
             if hasattr(self, '_m_noreloc'):
                 return self._m_noreloc
 
-            self._m_noreloc = (self.value & 4194304) != 0
+            self._m_noreloc = self.value & 4194304 != 0
             return getattr(self, '_m_noreloc', None)
 
         @property
@@ -2171,7 +2172,7 @@ class Elf(KaitaiStruct):
             if hasattr(self, '_m_confalt'):
                 return self._m_confalt
 
-            self._m_confalt = (self.value & 8192) != 0
+            self._m_confalt = self.value & 8192 != 0
             return getattr(self, '_m_confalt', None)
 
         @property
@@ -2180,7 +2181,7 @@ class Elf(KaitaiStruct):
             if hasattr(self, '_m_dispreldne'):
                 return self._m_dispreldne
 
-            self._m_dispreldne = (self.value & 32768) != 0
+            self._m_dispreldne = self.value & 32768 != 0
             return getattr(self, '_m_dispreldne', None)
 
         @property
@@ -2189,7 +2190,7 @@ class Elf(KaitaiStruct):
             if hasattr(self, '_m_rtld_global'):
                 return self._m_rtld_global
 
-            self._m_rtld_global = (self.value & 2) != 0
+            self._m_rtld_global = self.value & 2 != 0
             return getattr(self, '_m_rtld_global', None)
 
         @property
@@ -2198,7 +2199,7 @@ class Elf(KaitaiStruct):
             if hasattr(self, '_m_nodelete'):
                 return self._m_nodelete
 
-            self._m_nodelete = (self.value & 8) != 0
+            self._m_nodelete = self.value & 8 != 0
             return getattr(self, '_m_nodelete', None)
 
         @property
@@ -2206,7 +2207,7 @@ class Elf(KaitaiStruct):
             if hasattr(self, '_m_trans'):
                 return self._m_trans
 
-            self._m_trans = (self.value & 512) != 0
+            self._m_trans = self.value & 512 != 0
             return getattr(self, '_m_trans', None)
 
         @property
@@ -2215,7 +2216,7 @@ class Elf(KaitaiStruct):
             if hasattr(self, '_m_origin'):
                 return self._m_origin
 
-            self._m_origin = (self.value & 128) != 0
+            self._m_origin = self.value & 128 != 0
             return getattr(self, '_m_origin', None)
 
         @property
@@ -2224,7 +2225,7 @@ class Elf(KaitaiStruct):
             if hasattr(self, '_m_now'):
                 return self._m_now
 
-            self._m_now = (self.value & 1) != 0
+            self._m_now = self.value & 1 != 0
             return getattr(self, '_m_now', None)
 
         @property
@@ -2232,7 +2233,7 @@ class Elf(KaitaiStruct):
             if hasattr(self, '_m_nohdr'):
                 return self._m_nohdr
 
-            self._m_nohdr = (self.value & 1048576) != 0
+            self._m_nohdr = self.value & 1048576 != 0
             return getattr(self, '_m_nohdr', None)
 
         @property
@@ -2241,7 +2242,7 @@ class Elf(KaitaiStruct):
             if hasattr(self, '_m_endfiltee'):
                 return self._m_endfiltee
 
-            self._m_endfiltee = (self.value & 16384) != 0
+            self._m_endfiltee = self.value & 16384 != 0
             return getattr(self, '_m_endfiltee', None)
 
         @property
@@ -2250,7 +2251,7 @@ class Elf(KaitaiStruct):
             if hasattr(self, '_m_nodirect'):
                 return self._m_nodirect
 
-            self._m_nodirect = (self.value & 131072) != 0
+            self._m_nodirect = self.value & 131072 != 0
             return getattr(self, '_m_nodirect', None)
 
         @property
@@ -2259,7 +2260,7 @@ class Elf(KaitaiStruct):
             if hasattr(self, '_m_globaudit'):
                 return self._m_globaudit
 
-            self._m_globaudit = (self.value & 16777216) != 0
+            self._m_globaudit = self.value & 16777216 != 0
             return getattr(self, '_m_globaudit', None)
 
         @property
@@ -2267,7 +2268,7 @@ class Elf(KaitaiStruct):
             if hasattr(self, '_m_noksyms'):
                 return self._m_noksyms
 
-            self._m_noksyms = (self.value & 524288) != 0
+            self._m_noksyms = self.value & 524288 != 0
             return getattr(self, '_m_noksyms', None)
 
         @property
@@ -2276,7 +2277,7 @@ class Elf(KaitaiStruct):
             if hasattr(self, '_m_interpose'):
                 return self._m_interpose
 
-            self._m_interpose = (self.value & 1024) != 0
+            self._m_interpose = self.value & 1024 != 0
             return getattr(self, '_m_interpose', None)
 
         @property
@@ -2285,7 +2286,7 @@ class Elf(KaitaiStruct):
             if hasattr(self, '_m_nodump'):
                 return self._m_nodump
 
-            self._m_nodump = (self.value & 4096) != 0
+            self._m_nodump = self.value & 4096 != 0
             return getattr(self, '_m_nodump', None)
 
         @property
@@ -2294,7 +2295,7 @@ class Elf(KaitaiStruct):
             if hasattr(self, '_m_disprelpnd'):
                 return self._m_disprelpnd
 
-            self._m_disprelpnd = (self.value & 65536) != 0
+            self._m_disprelpnd = self.value & 65536 != 0
             return getattr(self, '_m_disprelpnd', None)
 
         @property
@@ -2303,7 +2304,7 @@ class Elf(KaitaiStruct):
             if hasattr(self, '_m_noopen'):
                 return self._m_noopen
 
-            self._m_noopen = (self.value & 64) != 0
+            self._m_noopen = self.value & 64 != 0
             return getattr(self, '_m_noopen', None)
 
         @property
@@ -2311,7 +2312,7 @@ class Elf(KaitaiStruct):
             if hasattr(self, '_m_stub'):
                 return self._m_stub
 
-            self._m_stub = (self.value & 67108864) != 0
+            self._m_stub = self.value & 67108864 != 0
             return getattr(self, '_m_stub', None)
 
         @property
@@ -2320,7 +2321,7 @@ class Elf(KaitaiStruct):
             if hasattr(self, '_m_direct'):
                 return self._m_direct
 
-            self._m_direct = (self.value & 256) != 0
+            self._m_direct = self.value & 256 != 0
             return getattr(self, '_m_direct', None)
 
         @property
@@ -2329,7 +2330,7 @@ class Elf(KaitaiStruct):
             if hasattr(self, '_m_edited'):
                 return self._m_edited
 
-            self._m_edited = (self.value & 2097152) != 0
+            self._m_edited = self.value & 2097152 != 0
             return getattr(self, '_m_edited', None)
 
         @property
@@ -2338,7 +2339,7 @@ class Elf(KaitaiStruct):
             if hasattr(self, '_m_group'):
                 return self._m_group
 
-            self._m_group = (self.value & 4) != 0
+            self._m_group = self.value & 4 != 0
             return getattr(self, '_m_group', None)
 
         @property
@@ -2346,7 +2347,7 @@ class Elf(KaitaiStruct):
             if hasattr(self, '_m_kmod'):
                 return self._m_kmod
 
-            self._m_kmod = (self.value & 268435456) != 0
+            self._m_kmod = self.value & 268435456 != 0
             return getattr(self, '_m_kmod', None)
 
         @property
@@ -2354,7 +2355,7 @@ class Elf(KaitaiStruct):
             if hasattr(self, '_m_pie'):
                 return self._m_pie
 
-            self._m_pie = (self.value & 134217728) != 0
+            self._m_pie = self.value & 134217728 != 0
             return getattr(self, '_m_pie', None)
 
         @property
@@ -2363,7 +2364,7 @@ class Elf(KaitaiStruct):
             if hasattr(self, '_m_nodeflib'):
                 return self._m_nodeflib
 
-            self._m_nodeflib = (self.value & 2048) != 0
+            self._m_nodeflib = self.value & 2048 != 0
             return getattr(self, '_m_nodeflib', None)
 
 
@@ -2371,7 +2372,7 @@ class Elf(KaitaiStruct):
         def __init__(self, value, _io, _parent=None, _root=None):
             self._io = _io
             self._parent = _parent
-            self._root = _root if _root else self
+            self._root = _root
             self.value = value
             self._read()
 
@@ -2384,7 +2385,7 @@ class Elf(KaitaiStruct):
             if hasattr(self, '_m_merge'):
                 return self._m_merge
 
-            self._m_merge = (self.value & 16) != 0
+            self._m_merge = self.value & 16 != 0
             return getattr(self, '_m_merge', None)
 
         @property
@@ -2393,7 +2394,7 @@ class Elf(KaitaiStruct):
             if hasattr(self, '_m_mask_os'):
                 return self._m_mask_os
 
-            self._m_mask_os = (self.value & 267386880) != 0
+            self._m_mask_os = self.value & 267386880 != 0
             return getattr(self, '_m_mask_os', None)
 
         @property
@@ -2402,7 +2403,7 @@ class Elf(KaitaiStruct):
             if hasattr(self, '_m_exclude'):
                 return self._m_exclude
 
-            self._m_exclude = (self.value & 134217728) != 0
+            self._m_exclude = self.value & 134217728 != 0
             return getattr(self, '_m_exclude', None)
 
         @property
@@ -2411,7 +2412,7 @@ class Elf(KaitaiStruct):
             if hasattr(self, '_m_mask_proc'):
                 return self._m_mask_proc
 
-            self._m_mask_proc = (self.value & 4026531840) != 0
+            self._m_mask_proc = self.value & 4026531840 != 0
             return getattr(self, '_m_mask_proc', None)
 
         @property
@@ -2420,7 +2421,7 @@ class Elf(KaitaiStruct):
             if hasattr(self, '_m_strings'):
                 return self._m_strings
 
-            self._m_strings = (self.value & 32) != 0
+            self._m_strings = self.value & 32 != 0
             return getattr(self, '_m_strings', None)
 
         @property
@@ -2429,7 +2430,7 @@ class Elf(KaitaiStruct):
             if hasattr(self, '_m_os_non_conforming'):
                 return self._m_os_non_conforming
 
-            self._m_os_non_conforming = (self.value & 256) != 0
+            self._m_os_non_conforming = self.value & 256 != 0
             return getattr(self, '_m_os_non_conforming', None)
 
         @property
@@ -2438,7 +2439,7 @@ class Elf(KaitaiStruct):
             if hasattr(self, '_m_compressed'):
                 return self._m_compressed
 
-            self._m_compressed = (self.value & 2048) != 0
+            self._m_compressed = self.value & 2048 != 0
             return getattr(self, '_m_compressed', None)
 
         @property
@@ -2447,7 +2448,7 @@ class Elf(KaitaiStruct):
             if hasattr(self, '_m_alloc'):
                 return self._m_alloc
 
-            self._m_alloc = (self.value & 2) != 0
+            self._m_alloc = self.value & 2 != 0
             return getattr(self, '_m_alloc', None)
 
         @property
@@ -2456,7 +2457,7 @@ class Elf(KaitaiStruct):
             if hasattr(self, '_m_exec_instr'):
                 return self._m_exec_instr
 
-            self._m_exec_instr = (self.value & 4) != 0
+            self._m_exec_instr = self.value & 4 != 0
             return getattr(self, '_m_exec_instr', None)
 
         @property
@@ -2465,7 +2466,7 @@ class Elf(KaitaiStruct):
             if hasattr(self, '_m_info_link'):
                 return self._m_info_link
 
-            self._m_info_link = (self.value & 64) != 0
+            self._m_info_link = self.value & 64 != 0
             return getattr(self, '_m_info_link', None)
 
         @property
@@ -2474,7 +2475,7 @@ class Elf(KaitaiStruct):
             if hasattr(self, '_m_write'):
                 return self._m_write
 
-            self._m_write = (self.value & 1) != 0
+            self._m_write = self.value & 1 != 0
             return getattr(self, '_m_write', None)
 
         @property
@@ -2483,7 +2484,7 @@ class Elf(KaitaiStruct):
             if hasattr(self, '_m_link_order'):
                 return self._m_link_order
 
-            self._m_link_order = (self.value & 128) != 0
+            self._m_link_order = self.value & 128 != 0
             return getattr(self, '_m_link_order', None)
 
         @property
@@ -2492,7 +2493,7 @@ class Elf(KaitaiStruct):
             if hasattr(self, '_m_ordered'):
                 return self._m_ordered
 
-            self._m_ordered = (self.value & 67108864) != 0
+            self._m_ordered = self.value & 67108864 != 0
             return getattr(self, '_m_ordered', None)
 
         @property
@@ -2501,7 +2502,7 @@ class Elf(KaitaiStruct):
             if hasattr(self, '_m_retain'):
                 return self._m_retain
 
-            self._m_retain = (self.value & 2097152) != 0
+            self._m_retain = self.value & 2097152 != 0
             return getattr(self, '_m_retain', None)
 
         @property
@@ -2510,7 +2511,7 @@ class Elf(KaitaiStruct):
             if hasattr(self, '_m_tls'):
                 return self._m_tls
 
-            self._m_tls = (self.value & 1024) != 0
+            self._m_tls = self.value & 1024 != 0
             return getattr(self, '_m_tls', None)
 
         @property
@@ -2519,7 +2520,7 @@ class Elf(KaitaiStruct):
             if hasattr(self, '_m_group'):
                 return self._m_group
 
-            self._m_group = (self.value & 512) != 0
+            self._m_group = self.value & 512 != 0
             return getattr(self, '_m_group', None)
 
 
@@ -2527,7 +2528,7 @@ class Elf(KaitaiStruct):
         def __init__(self, value, _io, _parent=None, _root=None):
             self._io = _io
             self._parent = _parent
-            self._root = _root if _root else self
+            self._root = _root
             self.value = value
             self._read()
 
@@ -2539,7 +2540,7 @@ class Elf(KaitaiStruct):
             if hasattr(self, '_m_read'):
                 return self._m_read
 
-            self._m_read = (self.value & 4) != 0
+            self._m_read = self.value & 4 != 0
             return getattr(self, '_m_read', None)
 
         @property
@@ -2547,7 +2548,7 @@ class Elf(KaitaiStruct):
             if hasattr(self, '_m_write'):
                 return self._m_write
 
-            self._m_write = (self.value & 2) != 0
+            self._m_write = self.value & 2 != 0
             return getattr(self, '_m_write', None)
 
         @property
@@ -2555,7 +2556,7 @@ class Elf(KaitaiStruct):
             if hasattr(self, '_m_execute'):
                 return self._m_execute
 
-            self._m_execute = (self.value & 1) != 0
+            self._m_execute = self.value & 1 != 0
             return getattr(self, '_m_execute', None)
 
         @property
@@ -2563,7 +2564,7 @@ class Elf(KaitaiStruct):
             if hasattr(self, '_m_mask_proc'):
                 return self._m_mask_proc
 
-            self._m_mask_proc = (self.value & 4026531840) != 0
+            self._m_mask_proc = self.value & 4026531840 != 0
             return getattr(self, '_m_mask_proc', None)
 
 
@@ -2583,7 +2584,7 @@ class Elf(KaitaiStruct):
         def __init__(self, value, _io, _parent=None, _root=None):
             self._io = _io
             self._parent = _parent
-            self._root = _root if _root else self
+            self._root = _root
             self.value = value
             self._read()
 
@@ -2598,7 +2599,7 @@ class Elf(KaitaiStruct):
             if hasattr(self, '_m_bind_now'):
                 return self._m_bind_now
 
-            self._m_bind_now = (self.value & 8) != 0
+            self._m_bind_now = self.value & 8 != 0
             return getattr(self, '_m_bind_now', None)
 
         @property
@@ -2607,7 +2608,7 @@ class Elf(KaitaiStruct):
             if hasattr(self, '_m_origin'):
                 return self._m_origin
 
-            self._m_origin = (self.value & 1) != 0
+            self._m_origin = self.value & 1 != 0
             return getattr(self, '_m_origin', None)
 
         @property
@@ -2616,7 +2617,7 @@ class Elf(KaitaiStruct):
             if hasattr(self, '_m_textrel'):
                 return self._m_textrel
 
-            self._m_textrel = (self.value & 4) != 0
+            self._m_textrel = self.value & 4 != 0
             return getattr(self, '_m_textrel', None)
 
         @property
@@ -2625,7 +2626,7 @@ class Elf(KaitaiStruct):
             if hasattr(self, '_m_static_tls'):
                 return self._m_static_tls
 
-            self._m_static_tls = (self.value & 16) != 0
+            self._m_static_tls = self.value & 16 != 0
             return getattr(self, '_m_static_tls', None)
 
         @property
@@ -2634,7 +2635,7 @@ class Elf(KaitaiStruct):
             if hasattr(self, '_m_symbolic'):
                 return self._m_symbolic
 
-            self._m_symbolic = (self.value & 2) != 0
+            self._m_symbolic = self.value & 2 != 0
             return getattr(self, '_m_symbolic', None)
 
 
@@ -2685,5 +2686,3 @@ class Elf(KaitaiStruct):
 
         self._m_sh_idx_hi_reserved = 65535
         return getattr(self, '_m_sh_idx_hi_reserved', None)
-
-
