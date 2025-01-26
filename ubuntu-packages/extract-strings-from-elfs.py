@@ -4,6 +4,7 @@ import json
 import re
 import subprocess
 from pathlib import Path
+from typing import Literal
 
 from elf import Elf
 from tqdm import tqdm
@@ -28,7 +29,7 @@ STRING_TRANSLATION_TABLE = str.maketrans({'\t': ' '})
 
 STRING_CUTOFF_LENGTH = 4
 
-def extract_strings_from_elf(elf_path: Path | str) -> dict:
+def extract_strings_from_elf(elf_path: Path) -> dict[str, list[str]]:
     data = Elf.from_file(elf_path)
     headers: list[Elf.EndianElf.SectionHeader] = data.header.section_headers
 
@@ -113,9 +114,11 @@ def extract_strings_from_elf(elf_path: Path | str) -> dict:
         'undefined_objects': undefined_objects,
     }
 
-def extract_strings_from_blob(path: Path) -> list[str]:
+def extract_strings_from_blob(path: Path) -> dict[Literal['strings'], list[str]]:
     strings_out = subprocess.check_output(['strings', '--', path], encoding='utf-8')
-    return strings_out.splitlines()
+    return {
+        'strings': strings_out.splitlines(),
+    }
 
 def main():
     json_from_elfs = {}
