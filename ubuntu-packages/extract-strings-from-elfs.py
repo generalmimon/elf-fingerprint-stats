@@ -1,10 +1,11 @@
 #!/usr/bin/env python3
 
 import json
-from pathlib import Path
-from elf import Elf
-import subprocess
 import re
+import subprocess
+from pathlib import Path
+
+from elf import Elf
 from tqdm import tqdm
 
 script_dir = Path(__file__).parent.resolve(True)

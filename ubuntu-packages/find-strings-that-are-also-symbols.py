@@ -1,11 +1,11 @@
 #!/usr/bin/env python3
 
-from collections import defaultdict
 import itertools
 import json
+from collections import defaultdict
 from pathlib import Path
-from utils import NoIndent, NoIndentEncoder
 
+from utils import NoIndent, NoIndentEncoder
 
 script_dir = Path(__file__).parent.resolve(True)
 strings_dir = script_dir / 'extracted-strings'

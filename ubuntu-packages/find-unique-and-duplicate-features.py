@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 
-from collections import Counter, defaultdict
 import copy
-from dataclasses import dataclass
 import json
+import re
+from collections import Counter, defaultdict
+from dataclasses import dataclass
 from operator import itemgetter
 from pathlib import Path
-import re
+
 from utils import NoIndent, NoIndentEncoder
 
 script_dir = Path(__file__).parent.resolve(True)

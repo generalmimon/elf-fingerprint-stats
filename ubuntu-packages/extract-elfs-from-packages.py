@@ -1,9 +1,10 @@
 #!/usr/bin/env python3
 
+import shutil
 from collections import defaultdict
 from pathlib import Path, PurePosixPath
-import shutil
 from tarfile import TarInfo
+
 from debian import debfile
 from tqdm import tqdm
 

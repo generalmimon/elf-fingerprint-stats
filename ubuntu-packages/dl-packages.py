@@ -1,11 +1,12 @@
 #!/usr/bin/env python3
 
-from pathlib import Path, PurePosixPath
-import requests
-import sys
-import re
 import gzip
+import re
+import sys
 from dataclasses import dataclass
+from pathlib import Path, PurePosixPath
+
+import requests
 from debian import deb822
 
 script_dir = Path(__file__).parent.resolve(True)

@@ -1,15 +1,15 @@
 #!/usr/bin/env python3
 
-from collections.abc import Iterable
 import json
-from pathlib import Path
 import textwrap
+from collections.abc import Iterable
+from pathlib import Path
 from typing import Any
+
 import matplotlib
-from matplotlib.axes import Axes
 import matplotlib.pyplot as plt
 import numpy as np
-
+from matplotlib.axes import Axes
 
 script_dir = Path(__file__).parent.resolve(True)
 strings_dir = script_dir / 'extracted-strings'
