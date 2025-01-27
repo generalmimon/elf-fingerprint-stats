@@ -3,15 +3,13 @@
 import copy
 import json
 import re
+import sys
 from collections import Counter, defaultdict
 from dataclasses import dataclass
 from operator import itemgetter
 from pathlib import Path
 
 from utils import NoIndent, NoIndentEncoder
-
-script_dir = Path(__file__).parent.resolve(True)
-strings_dir = script_dir / 'extracted-strings'
 
 ELF_PATH_REGEX = re.compile(r'(.*)/(.*_amd64\.deb)-(.*)')
 
@@ -39,11 +37,11 @@ def read_from_elfs_json(json_path: Path) -> dict[ElfPath, dict[str, list[str]]]:
         orig_json = json.load(f)
         return {ElfPath.from_str(elf_path_str): features_dict for elf_path_str, features_dict in orig_json.items()}
 
-def main():
-    json_from_elfs = read_from_elfs_json(strings_dir / 'from-elfs.json')
+def generate_dumps(json_path: Path, output_dir: Path) -> None:
+    elf_to_features = read_from_elfs_json(json_path)
 
     inverse_map: dict[str, dict[str, list[ElfPath]]] = defaultdict(lambda: defaultdict(list))
-    for elf_path, features_dict in json_from_elfs.items():
+    for elf_path, features_dict in elf_to_features.items():
         for feature_type, instances in features_dict.items():
             pool = inverse_map[feature_type]
             processed_instances = set()
@@ -61,7 +59,7 @@ def main():
     elf_info_template = {feature_type: copy.deepcopy(uniq_classes_dict_template) for feature_type in inverse_map}
 
     packages_info = defaultdict(dict)
-    for elf_path in json_from_elfs:
+    for elf_path in elf_to_features:
         packages_info[elf_path.pkg_path][elf_path.name] = copy.deepcopy(elf_info_template)
 
     packages_info = dict(packages_info)
@@ -122,25 +120,56 @@ def main():
         for key, counters_dict in aggr_by_num_origins_counts.items()
     }
 
-    with open(strings_dir / 'from-elfs-classified-aggregated.json', 'w', encoding='utf-8') as f:
+    with open(output_dir / 'classified-aggregated.json', 'w', encoding='utf-8') as f:
         comment = 'The meaning of the numbers is [num_source_pkgs, num_binary_pkgs, num_elfs]'
         json.dump({'$comment': comment, **ordered_aggr_features}, f, ensure_ascii=False, allow_nan=False, indent=2, cls=NoIndentEncoder)
 
-    with open(strings_dir / 'from-elfs-classified-aggregated-strings-by-len.json', 'w', encoding='utf-8') as f:
+    with open(output_dir / 'classified-aggregated-strings-by-len.json', 'w', encoding='utf-8') as f:
         json.dump(ordered_aggr_strings_by_len, f, ensure_ascii=False, allow_nan=False, indent=2)
 
-    with open(strings_dir / 'from-elfs-classified-aggregated-strings-by-len-counts.json', 'w', encoding='utf-8') as f:
+    with open(output_dir / 'classified-aggregated-strings-by-len-counts.json', 'w', encoding='utf-8') as f:
         json.dump(ordered_aggr_strings_by_len_counts, f, ensure_ascii=False, allow_nan=False, indent=2, cls=NoIndentEncoder)
 
-    with open(strings_dir / 'from-elfs-aggregated-by-num-origins-counts.json', 'w', encoding='utf-8') as f:
+    with open(output_dir / 'aggregated-by-num-origins-counts.json', 'w', encoding='utf-8') as f:
         json.dump(ordered_aggr_by_num_origins_counts, f, ensure_ascii=False, allow_nan=False, indent=2)
 
-    with open(strings_dir / 'from-elfs-classified-per-packages.json', 'w', encoding='utf-8') as f:
+    with open(output_dir / 'classified-per-packages.json', 'w', encoding='utf-8') as f:
         json.dump(packages_info, f, ensure_ascii=False, allow_nan=False, indent=2)
 
-    with open(strings_dir / 'from-elfs-duplicate-grouped.json', 'w', encoding='utf-8') as f:
+    with open(output_dir / 'duplicate-grouped.json', 'w', encoding='utf-8') as f:
         json.dump(ordered_grouped_by_elf_set, f, ensure_ascii=False, allow_nan=False, indent=2)
 
+def usage(prog_name: str) -> None:
+    print(f'Usage: {prog_name} <input-json> [<output-dir>]', file=sys.stderr)
+
+def main(argv: list[str]) -> int:
+    prog_name = argv[0]
+    num_args = len(argv) - 1
+    if num_args not in (1, 2):
+        print(f'Error: expected 1 or 2 positional arguments, but got {num_args}', file=sys.stderr)
+        print(file=sys.stderr)
+        usage(prog_name)
+        return 1
+
+    input_json = Path(argv[1])
+    if input_json.suffix != '.json':
+        print(f'Error: expected <input-json> to have a .json extension, but got {argv[1]!r}', file=sys.stderr)
+        print(file=sys.stderr)
+        usage(prog_name)
+        return 1
+
+    try:
+        output_dir = argv[2]
+    except IndexError:
+        output_dir = input_json.parent / f'dumps-{input_json.stem}'
+        print(f'Info: <output-dir> not given, using {output_dir}/', file=sys.stderr)
+    else:
+        output_dir = Path(output_dir)
+    output_dir.mkdir(exist_ok=True)
+
+    generate_dumps(input_json, output_dir)
+
+    return 0
 
 if __name__ == '__main__':
-    main()
+    sys.exit(main(sys.argv))

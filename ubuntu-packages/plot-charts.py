@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import json
+import sys
 import textwrap
 from collections.abc import Iterable
 from pathlib import Path
@@ -10,11 +11,6 @@ import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 from matplotlib.axes import Axes
-
-script_dir = Path(__file__).parent.resolve(True)
-strings_dir = script_dir / 'extracted-strings'
-charts_dir = strings_dir / 'charts'
-charts_dir.mkdir(exist_ok=True)
 
 UNIQ_CLASSES_AND_LABELS = [
     ('elf_unique', 'ELF-unique'),
@@ -39,16 +35,17 @@ def read_json(file_path: Path) -> dict[int, Any]:
 
 def plot_num_features_classified_absolute(data_set: dict[str, dict[str, int]], output_filename: Path):
     # See https://matplotlib.org/stable/gallery/lines_bars_and_markers/bar_stacked.html
+    feat_types_and_labels = [t for t in FEAT_TYPES_AND_LABELS if t[0] in data_set]
     data = {
         feat_type: np.array([data_set[feat_type][uniq_class] for uniq_class, _ in UNIQ_CLASSES_AND_LABELS])
-        for feat_type, _ in FEAT_TYPES_AND_LABELS
+        for feat_type, _ in feat_types_and_labels
     }
     uniq_class_labels = [textwrap.fill(label, 14) for _, label in UNIQ_CLASSES_AND_LABELS]
 
     fig, ax = plt.subplots()
     bottom = np.zeros(len(uniq_class_labels))
 
-    for feat_type, feat_type_label in FEAT_TYPES_AND_LABELS:
+    for feat_type, feat_type_label in feat_types_and_labels:
         d = data[feat_type]
         ax.bar(uniq_class_labels, d, label=feat_type_label, bottom=bottom)
         bottom += d
@@ -62,11 +59,12 @@ def plot_num_features_classified_absolute(data_set: dict[str, dict[str, int]], o
 
 def plot_num_features_classified_relative(data_set: dict[str, dict[str, float]], totals: dict[str, int], output_filename: Path):
     # See https://matplotlib.org/stable/gallery/lines_bars_and_markers/bar_stacked.html
+    feat_types_and_labels = [t for t in FEAT_TYPES_AND_LABELS if t[0] in data_set]
     data = {
-        uniq_class: np.array([data_set[feat_type][uniq_class] for feat_type, _ in FEAT_TYPES_AND_LABELS])
+        uniq_class: np.array([data_set[feat_type][uniq_class] for feat_type, _ in feat_types_and_labels])
         for uniq_class, _ in UNIQ_CLASSES_AND_LABELS
     }
-    feat_type_labels = [textwrap.fill(label, 14) for _, label in FEAT_TYPES_AND_LABELS]
+    feat_type_labels = [textwrap.fill(label, 14) for _, label in feat_types_and_labels]
 
     fig, ax = plt.subplots()
     bottom = np.zeros(len(feat_type_labels))
@@ -77,7 +75,7 @@ def plot_num_features_classified_relative(data_set: dict[str, dict[str, float]],
         bars.append(ax.bar(feat_type_labels, d, label=uniq_class_label, bottom=bottom))
         bottom += d
 
-    ax.bar_label(bars[-1], labels=[f'{totals[feat_type]:,}' for feat_type, _ in FEAT_TYPES_AND_LABELS])
+    ax.bar_label(bars[-1], labels=[f'{totals[feat_type]:,}' for feat_type, _ in feat_types_and_labels])
 
     ax.yaxis.set_major_formatter(matplotlib.ticker.PercentFormatter(1.0))
     ax.set_title("Ratio of uniqueness classes of extracted features from ELFs")
@@ -125,6 +123,8 @@ def plot_num_strings_by_len_classified(data_set: dict[int, dict[str, int]], outp
 
 
 def plot_num_features_aggregated_by_num_origins(data_set: dict[str, dict[str, dict[str, int]]], output_filename: Path):
+    feat_types_and_labels = [t for t in FEAT_TYPES_AND_LABELS if t[0] in data_set['elfs']]
+    feat_type_labels = [label for _, label in feat_types_and_labels]
     subplots_info = [
         ('elfs', "grouped by the number of ELFs", "Number of ELFs"),
         ('binary_pkgs', "grouped by the number of binary packages", "Number of binary packages"),
@@ -138,14 +138,13 @@ def plot_num_features_aggregated_by_num_origins(data_set: dict[str, dict[str, di
         data_set_key, subplot_title, subplot_xlabel = subplot_info
         data = [
             list(data_set[data_set_key][feat_type].values())
-            for feat_type, _ in FEAT_TYPES_AND_LABELS
+            for feat_type, _ in feat_types_and_labels
         ]
-        feat_type_labels = [label for _, label in FEAT_TYPES_AND_LABELS]
 
         bins = np.arange(1, 5 + 2)
         num_origins = [
             np.clip([int(k) for k in data_set[data_set_key][feat_type]], bins[0], bins[-1])
-            for feat_type, _ in FEAT_TYPES_AND_LABELS
+            for feat_type, _ in feat_types_and_labels
         ]
         ax.hist(
             num_origins,
@@ -171,31 +170,59 @@ def plot_num_features_aggregated_by_num_origins(data_set: dict[str, dict[str, di
     fig.savefig(output_filename)
 
 
-def main():
-    aggregated_counts = read_json(strings_dir / 'from-elfs-classified-aggregated-counts.json')
+def plot_charts(dumps_dir: Path, output_dir: Path) -> None:
+    aggregated_counts = read_json(dumps_dir / 'classified-aggregated-counts.json')
 
     plot_num_features_classified_absolute(
         aggregated_counts['absolute'],
-        charts_dir / 'from-elfs-num-features-classified-absolute.svg'
+        output_dir / 'num-features-classified-absolute.svg'
     )
     plot_num_features_classified_relative(
         aggregated_counts['relative'],
         {feat_type: stats['total'] for feat_type, stats in aggregated_counts['absolute'].items()},
-        charts_dir / 'from-elfs-num-features-classified-relative.svg'
+        output_dir / 'num-features-classified-relative.svg'
     )
-    strings_by_len_orig = read_json(strings_dir / 'from-elfs-classified-aggregated-strings-by-len-counts.json')
+    strings_by_len_orig = read_json(dumps_dir / 'classified-aggregated-strings-by-len-counts.json')
     plot_num_strings_by_len_classified(
         {int(k): v for k, v in strings_by_len_orig.items()},
-        charts_dir / 'from-elfs-num-strings-by-len-classified.svg'
+        output_dir / 'num-strings-by-len-classified.svg'
     )
-    features_by_num_origins_orig = read_json(strings_dir / 'from-elfs-aggregated-by-num-origins-counts.json')
+    features_by_num_origins_orig = read_json(dumps_dir / 'aggregated-by-num-origins-counts.json')
     plot_num_features_aggregated_by_num_origins(
         features_by_num_origins_orig,
-        charts_dir / 'from-elfs-num-features-by-num-origins.svg'
+        output_dir / 'num-features-by-num-origins.svg'
     )
+
+
+def usage(prog_name: str):
+    print(f'Usage: {prog_name} <dumps-dir> [<output-dir>]', file=sys.stderr)
+
+
+def main(argv: list[str]) -> int:
+    prog_name = argv[0]
+    num_args = len(argv) - 1
+    if num_args not in (1, 2):
+        print(f'Error: expected 1 or 2 positional arguments, but got {num_args}', file=sys.stderr)
+        print(file=sys.stderr)
+        usage(prog_name)
+        return 1
+
+    dumps_dir = Path(argv[1])
+    try:
+        output_dir = argv[2]
+    except IndexError:
+        output_dir = dumps_dir.parent / ('charts-' + dumps_dir.name.removeprefix('dumps-'))
+        print(f'Info: <output-dir> not given, using {output_dir}/', file=sys.stderr)
+    else:
+        output_dir = Path(output_dir)
+    output_dir.mkdir(exist_ok=True)
+
+    # Preserve text as strings in output SVGs, see https://matplotlib.org/stable/users/explain/text/fonts.html#fonts-in-svg
+    with plt.rc_context({'svg.fonttype': 'none'}):
+        plot_charts(dumps_dir, output_dir)
+
+    return 0
 
 
 if __name__ == '__main__':
-    # Preserve text as strings in output SVGs, see https://matplotlib.org/stable/users/explain/text/fonts.html#fonts-in-svg
-    with plt.rc_context({'svg.fonttype': 'none'}):
-        main()
+    sys.exit(main(sys.argv))
