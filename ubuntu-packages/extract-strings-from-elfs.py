@@ -3,8 +3,8 @@
 import json
 import re
 import subprocess
+from collections import defaultdict
 from pathlib import Path
-from typing import Literal
 
 from elf import Elf
 from tqdm import tqdm
@@ -30,8 +30,8 @@ STRING_TRANSLATION_TABLE = str.maketrans({'\t': ' '})
 STRING_CUTOFF_LENGTH = 4
 
 def extract_strings_from_elf(elf_path: Path) -> dict[str, list[str]]:
-    data = Elf.from_file(elf_path)
-    headers: list[Elf.EndianElf.SectionHeader] = data.header.section_headers
+    elf_data = Elf.from_file(elf_path)
+    section_headers: list[Elf.EndianElf.SectionHeader] = elf_data.header.section_headers
 
     string_literals = []
     defined_functions = []
@@ -39,7 +39,7 @@ def extract_strings_from_elf(elf_path: Path) -> dict[str, list[str]]:
     defined_objects = []
     undefined_objects = []
 
-    for header in headers:
+    for header in section_headers:
         if header.name in RODATA_SECTIONS:
             if header.type == Elf.ShType.nobits:
                 continue
@@ -114,13 +114,53 @@ def extract_strings_from_elf(elf_path: Path) -> dict[str, list[str]]:
         'undefined_objects': undefined_objects,
     }
 
-def extract_strings_from_blob(path: Path) -> dict[Literal['strings'], list[str]]:
-    strings_out = subprocess.check_output(['strings', '--', path], encoding='utf-8')
-    return {
-        'strings': strings_out.splitlines(),
-    }
+def extract_strings_from_blob(elf_path: Path) -> dict[str, list[str]]:
+    fixed_strings_args = 'strings -a -t x --'.split()
+    strings_out = subprocess.check_output(fixed_strings_args + [elf_path], encoding='utf-8')
 
-def main():
+    elf_data = Elf.from_file(elf_path)
+    section_headers: list[Elf.EndianElf.SectionHeader] = elf_data.header.section_headers
+    section_ranges: list[tuple[str, range]] = []
+    for section_header in section_headers:
+        if section_header.type == Elf.ShType.nobits:
+            continue
+        section_range = range(
+            section_header.ofs_body, section_header.ofs_body + section_header.len_body
+        )
+        # See <https://refspecs.linuxbase.org/elf/gabi4+/ch4.sheader.html>:
+        #
+        # > Sections in a file may not overlap. No byte in a file resides in
+        # > more than one section.
+        #
+        # Let's make sure this is true.
+        assert all(
+            (
+                other_section_range.stop <= section_range.start
+                or section_range.stop <= other_section_range.start
+            )
+            for _, other_section_range in section_ranges
+        ), f'{elf_path}: unexpected overlapping section {section_header.name!r}'
+        section_ranges.append((section_header.name or '', section_range))
+
+    res_strings = defaultdict(list)
+
+    for line in strings_out.splitlines():
+        line = line.lstrip(' ')
+        hex_offset, s = line.split(' ', maxsplit=1)
+        offset = int(hex_offset, 16)
+        section_name = next(
+            (
+                section_name
+                for section_name, section_range in section_ranges
+                if offset in section_range
+            ),
+            '',
+        )
+        res_strings[section_name].append(s)
+
+    return res_strings
+
+def main() -> None:
     json_from_elfs = {}
     json_from_blobs = {}
     elfs = [path for path in elfs_dir.glob('**/*') if path.is_file()]
