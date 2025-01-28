@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import copy
+import itertools
 import json
 import re
 import sys
@@ -51,21 +52,20 @@ def generate_dumps(json_path: Path, output_dir: Path) -> None:
                 pool[inst].append(elf_path)
                 processed_instances.add(inst)
 
-    feature_types_dict_template = {feature_type: [] for feature_type in inverse_map}
-    grouped_by_elf_set = defaultdict(lambda: copy.deepcopy(feature_types_dict_template))
+    grouped_by_elf_set = defaultdict(lambda: defaultdict(list))
 
     UNIQ_CLASSES = ['elf_unique', 'binary_pkg_unique', 'source_pkg_unique', 'not_unique']
     uniq_classes_dict_template = {uniq_class: [] for uniq_class in UNIQ_CLASSES}
-    elf_info_template = {feature_type: copy.deepcopy(uniq_classes_dict_template) for feature_type in inverse_map}
+    elf_info_template = defaultdict(lambda: copy.deepcopy(uniq_classes_dict_template))
 
     packages_info = defaultdict(dict)
     for elf_path in elf_to_features:
         packages_info[elf_path.pkg_path][elf_path.name] = copy.deepcopy(elf_info_template)
 
     packages_info = dict(packages_info)
-    aggr_features = {feature_type: copy.deepcopy(uniq_classes_dict_template) for feature_type in inverse_map}
+    aggr_features = defaultdict(lambda: copy.deepcopy(uniq_classes_dict_template))
 
-    aggr_by_num_origins_counts = {key: {feature_type: Counter() for feature_type in inverse_map} for key in ('elfs', 'binary_pkgs', 'source_pkgs')}
+    aggr_by_num_origins_counts = {key: defaultdict(Counter) for key in ('elfs', 'binary_pkgs', 'source_pkgs')}
 
     for feature_type, instances_dict in inverse_map.items():
         for inst, elfs in instances_dict.items():
@@ -88,8 +88,15 @@ def generate_dumps(json_path: Path, output_dir: Path) -> None:
             aggr_by_num_origins_counts['binary_pkgs'][feature_type][num_binary_pkgs] += 1
             aggr_by_num_origins_counts['source_pkgs'][feature_type][num_source_pkgs] += 1
 
+    if 'strings' in aggr_features:
+        aggr_strings_iter = aggr_features['strings'].items()
+    else:
+        # We're probably dealing with `from-blobs.json`, where we want to treat
+        # everything as a string.
+        aggr_strings_iter = itertools.chain.from_iterable(d.items() for d in aggr_features.values())
+
     aggr_strings_by_len = defaultdict(lambda: copy.deepcopy(uniq_classes_dict_template))
-    for uniq_class, strings_list in aggr_features['strings'].items():
+    for uniq_class, strings_list in aggr_strings_iter:
         for s, _ in strings_list:
             aggr_strings_by_len[len(s)][uniq_class].append(s)
 
