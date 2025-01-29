@@ -166,12 +166,12 @@ def main(argv: list[str]) -> int:
         return 1
 
     try:
-        output_dir = argv[2]
+        output_dir_str = argv[2]
     except IndexError:
         output_dir = input_json.parent / f'dumps-{input_json.stem}'
         print(f'Info: <output-dir> not given, using {output_dir}/', file=sys.stderr)
     else:
-        output_dir = Path(output_dir)
+        output_dir = Path(output_dir_str)
     output_dir.mkdir(exist_ok=True)
 
     generate_dumps(input_json, output_dir)

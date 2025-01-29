@@ -209,12 +209,12 @@ def main(argv: list[str]) -> int:
 
     dumps_dir = Path(argv[1])
     try:
-        output_dir = argv[2]
+        output_dir_str = argv[2]
     except IndexError:
         output_dir = dumps_dir.parent / ('charts-' + dumps_dir.name.removeprefix('dumps-'))
         print(f'Info: <output-dir> not given, using {output_dir}/', file=sys.stderr)
     else:
-        output_dir = Path(output_dir)
+        output_dir = Path(output_dir_str)
     output_dir.mkdir(exist_ok=True)
 
     # Preserve text as strings in output SVGs, see https://matplotlib.org/stable/users/explain/text/fonts.html#fonts-in-svg
