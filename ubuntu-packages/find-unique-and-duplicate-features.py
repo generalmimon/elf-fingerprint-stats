@@ -99,20 +99,41 @@ def generate_dumps(json_path: Path, output_dir: Path, global_uniqueness: bool) -
                     continue
                 locations_dict[feature_type].append(elf_path)
 
-    num_origins_having_feature_type = {
-        feature_type: get_num_origins(elfs)
+    num_unique_feature_type_instances = Counter()
+    for inst, locations_dict in inst_to_locations.items():
+        for feature_type in locations_dict:
+            num_unique_feature_type_instances[feature_type] += 1
+
+    num_feature_type_origins_and_counts = {
+        feature_type: {'count': num_unique_feature_type_instances[feature_type], 'origins': get_num_origins(elfs)}
         for feature_type, elfs in elfs_having_feature_type.items()
     }
     sorted_feature_types = [
         feature_type
-        for feature_type, _ in sorted(num_origins_having_feature_type.items(), key=itemgetter(1), reverse=True)
+        for feature_type, _ in sorted(
+            num_feature_type_origins_and_counts.items(),
+            key=lambda t: t[1]['count'],
+            reverse=True,
+        )
+    ]
+    # This splitting of feature types based on the "at least 5 source packages"
+    # condition is done because of the `from-blobs-missing-from-elfs.json`,
+    # because there are some ELF section names that have many unique strings but
+    # they only occur in 1-2 source packages (so they don't give a general
+    # answer answer to ELF fingerprinting).
+    sorted_feature_types = [
+        feature_type for feature_type in sorted_feature_types
+        if num_feature_type_origins_and_counts[feature_type]['origins'].num_source_pkgs >= 5
+    ] + [
+        feature_type for feature_type in sorted_feature_types
+        if num_feature_type_origins_and_counts[feature_type]['origins'].num_source_pkgs < 5
     ]
 
     with open(output_dir / 'feature-types-aggregated-counts.json', 'w', encoding='utf-8') as f:
         json_body = {
-            '$comment': JSON_COMMENT,
+            '$comment': f"The meaning of the numbers in 'origins' is [{', '.join(NumOrigins._fields)}]",
             'data': {
-                feature_type: NoIndent(num_origins_having_feature_type[feature_type])
+                feature_type: NoIndent(num_feature_type_origins_and_counts[feature_type])
                 for feature_type in sorted_feature_types
             }
         }

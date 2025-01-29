@@ -3,7 +3,9 @@
 import json
 import sys
 import textwrap
+from collections import Counter
 from collections.abc import Iterable
+from operator import itemgetter
 from pathlib import Path
 from typing import Any
 
@@ -19,36 +21,57 @@ UNIQ_CLASSES_AND_LABELS = [
     ('not_unique', 'Not unique'),
 ]
 
-FEAT_TYPES_AND_LABELS = [
-    ('strings', 'Strings'),
-    ('defined_functions', 'Defined functions'),
-    ('undefined_functions', 'Undefined functions'),
-    ('defined_objects', 'Defined objects'),
-    ('undefined_objects', 'Undefined objects'),
-]
+FEAT_TYPE_TO_LABEL = {
+    'strings': 'Strings',
+    'defined_functions': 'Defined functions',
+    'undefined_functions': 'Undefined functions',
+    'defined_objects': 'Defined objects',
+    'undefined_objects': 'Undefined objects',
+    '': 'Other',
+}
 
 
-def read_json(file_path: Path) -> dict[int, Any]:
+def read_json(file_path: Path) -> dict[str, Any]:
     with open(file_path, 'r', encoding='utf-8') as f:
         return json.load(f)
 
 
+def reduce_num_features_classified_data_set(full_data_set: dict[str, dict[str, int]], max_num_feature_types: int) -> dict[str, dict[str, int]]:
+    assert max_num_feature_types >= 1
+    all_feature_types = tuple(full_data_set)
+    if len(all_feature_types) > max_num_feature_types:
+        feature_types = all_feature_types[:max_num_feature_types - 1]
+        data_set = {feat_type: full_data_set[feat_type] for feat_type in feature_types}
+        feature_types_set = set(feature_types)
+        data_set[''] = {
+            uniq_class: sum(
+                uniq_class_stats[uniq_class]
+                for feat_type, uniq_class_stats in full_data_set.items()
+                if feat_type not in feature_types_set
+            )
+            for uniq_class, _ in UNIQ_CLASSES_AND_LABELS
+        }
+    else:
+        data_set = full_data_set
+
+    return data_set
+
+
 def plot_num_features_classified_absolute(data_set: dict[str, dict[str, int]], output_filename: Path):
     # See https://matplotlib.org/stable/gallery/lines_bars_and_markers/bar_stacked.html
-    feat_types_and_labels = [t for t in FEAT_TYPES_AND_LABELS if t[0] in data_set]
     data = {
-        feat_type: np.array([data_set[feat_type][uniq_class] for uniq_class, _ in UNIQ_CLASSES_AND_LABELS])
-        for feat_type, _ in feat_types_and_labels
+        feat_type: np.array([uniq_class_stats[uniq_class] for uniq_class, _ in UNIQ_CLASSES_AND_LABELS])
+        for feat_type, uniq_class_stats in data_set.items()
     }
     uniq_class_labels = [textwrap.fill(label, 14) for _, label in UNIQ_CLASSES_AND_LABELS]
 
     fig, ax = plt.subplots()
     bottom = np.zeros(len(uniq_class_labels))
 
-    for feat_type, feat_type_label in feat_types_and_labels:
-        d = data[feat_type]
-        ax.bar(uniq_class_labels, d, label=feat_type_label, bottom=bottom)
-        bottom += d
+    for feat_type, uniq_class_stats in data.items():
+        feat_type_label = FEAT_TYPE_TO_LABEL.get(feat_type, feat_type)
+        ax.bar(uniq_class_labels, uniq_class_stats, label=feat_type_label, bottom=bottom)
+        bottom += uniq_class_stats
 
     ax.yaxis.set_major_formatter(matplotlib.ticker.FuncFormatter(lambda x, _: f'{int(x):,}'))
     ax.set_title("Number of extracted features from ELFs classified by uniqueness")
@@ -57,14 +80,20 @@ def plot_num_features_classified_absolute(data_set: dict[str, dict[str, int]], o
     fig.savefig(output_filename)
 
 
-def plot_num_features_classified_relative(data_set: dict[str, dict[str, float]], totals: dict[str, int], output_filename: Path):
+def plot_num_features_classified_relative(data_set: dict[str, dict[str, int]], output_filename: Path, rotated_xlabels: bool):
     # See https://matplotlib.org/stable/gallery/lines_bars_and_markers/bar_stacked.html
-    feat_types_and_labels = [t for t in FEAT_TYPES_AND_LABELS if t[0] in data_set]
+    totals = {
+        feat_type: sum(uniq_class_stats[uniq_class] for uniq_class, _ in UNIQ_CLASSES_AND_LABELS)
+        for feat_type, uniq_class_stats in data_set.items()
+    }
+
     data = {
-        uniq_class: np.array([data_set[feat_type][uniq_class] for feat_type, _ in feat_types_and_labels])
+        uniq_class: np.array([uniq_class_stats[uniq_class] / totals[feat_type] for feat_type, uniq_class_stats in data_set.items()])
         for uniq_class, _ in UNIQ_CLASSES_AND_LABELS
     }
-    feat_type_labels = [textwrap.fill(label, 14) for _, label in feat_types_and_labels]
+    feat_type_labels = [FEAT_TYPE_TO_LABEL.get(feat_type, feat_type) for feat_type in data_set.keys()]
+    if not rotated_xlabels:
+        feat_type_labels = [textwrap.fill(label, 14) for label in feat_type_labels]
 
     fig, ax = plt.subplots()
     bottom = np.zeros(len(feat_type_labels))
@@ -75,12 +104,16 @@ def plot_num_features_classified_relative(data_set: dict[str, dict[str, float]],
         bars.append(ax.bar(feat_type_labels, d, label=uniq_class_label, bottom=bottom))
         bottom += d
 
-    ax.bar_label(bars[-1], labels=[f'{totals[feat_type]:,}' for feat_type, _ in feat_types_and_labels])
+    ax.bar_label(bars[-1], labels=[f'{totals[feat_type]:,}' for feat_type in data_set.keys()])
+    if rotated_xlabels:
+        ax.set_xticks(feat_type_labels, feat_type_labels, rotation=30, horizontalalignment='right')
 
     ax.yaxis.set_major_formatter(matplotlib.ticker.PercentFormatter(1.0))
     ax.set_title("Ratio of uniqueness classes of extracted features from ELFs")
     ax.legend(loc='lower right')
 
+    if rotated_xlabels:
+        fig.tight_layout()
     fig.savefig(output_filename)
 
 
@@ -122,14 +155,40 @@ def plot_num_strings_by_len_classified(data_set: dict[int, dict[str, int]], outp
     fig.savefig(output_filename)
 
 
-def plot_num_features_aggregated_by_num_origins(data_set: dict[str, dict[str, dict[str, int]]], output_filename: Path):
-    feat_types_and_labels = [t for t in FEAT_TYPES_AND_LABELS if t[0] in data_set['elfs']]
-    feat_type_labels = [label for _, label in feat_types_and_labels]
+def plot_num_features_aggregated_by_num_origins(full_data_sets: dict[str, dict[str, dict[int, int]]], output_filename: Path, max_num_feature_types: int):
+    assert max_num_feature_types >= 1
     subplots_info = [
         ('elfs', "grouped by the number of ELFs", "Number of ELFs"),
         ('binary_pkgs', "grouped by the number of binary packages", "Number of binary packages"),
         ('source_pkgs', "grouped by the number of source packages", "Number of source packages"),
     ]
+
+    # Make sure that all datasets have exactly the same feature types (including
+    # their order). We rely on this - if this were not true, the resulting chart
+    # would be garbage.
+    first_data_set_feat_types = tuple(full_data_sets[subplots_info[0][0]])
+    if not all(tuple(stats) == first_data_set_feat_types for stats in full_data_sets.values()):
+        raise ValueError(f"not all data sets {list(full_data_sets.keys())!r} have keys in the same order, which is required")
+
+    all_feature_types = first_data_set_feat_types
+    if len(all_feature_types) > max_num_feature_types:
+        feature_types = all_feature_types[:max_num_feature_types - 1]
+        data_sets = {
+            data_set_key: {feat_type: full_data_set[feat_type] for feat_type in feature_types}
+            for data_set_key, full_data_set in full_data_sets.items()
+        }
+        feature_types_set = set(feature_types)
+        for data_set_key, full_data_set in full_data_sets.items():
+            others = Counter()
+            for feat_type, counter in full_data_set.items():
+                if feat_type in feature_types_set:
+                    continue
+                others += Counter(counter)
+            data_sets[data_set_key][''] = {k: v for k, v in sorted(others.items(), key=itemgetter(0))}
+    else:
+        data_sets = full_data_sets
+
+    feat_type_labels = [FEAT_TYPE_TO_LABEL.get(feat_type, feat_type) for feat_type in data_sets[subplots_info[0][0]]]
 
     fig, axs = plt.subplots(1, len(subplots_info), layout='constrained', figsize=(15, 6), sharey=True)
     axs: Iterable[Axes]
@@ -137,14 +196,14 @@ def plot_num_features_aggregated_by_num_origins(data_set: dict[str, dict[str, di
     for subplot_info, ax in zip(subplots_info, axs, strict=True):
         data_set_key, subplot_title, subplot_xlabel = subplot_info
         data = [
-            list(data_set[data_set_key][feat_type].values())
-            for feat_type, _ in feat_types_and_labels
+            list(counter.values())
+            for counter in data_sets[data_set_key].values()
         ]
 
         bins = np.arange(1, 5 + 2)
         num_origins = [
-            np.clip([int(k) for k in data_set[data_set_key][feat_type]], bins[0], bins[-1])
-            for feat_type, _ in feat_types_and_labels
+            np.clip([int(k) for k in counter], bins[0], bins[-1])
+            for counter in data_sets[data_set_key].values()
         ]
         ax.hist(
             num_origins,
@@ -171,26 +230,38 @@ def plot_num_features_aggregated_by_num_origins(data_set: dict[str, dict[str, di
 
 
 def plot_charts(dumps_dir: Path, output_dir: Path) -> None:
+    MAX_NUM_FEATURE_TYPES = 8
+
     aggregated_counts = read_json(dumps_dir / 'classified-aggregated-counts.json')
+    reduced_aggregated_counts = reduce_num_features_classified_data_set(aggregated_counts['absolute'], MAX_NUM_FEATURE_TYPES)
 
     plot_num_features_classified_absolute(
-        aggregated_counts['absolute'],
-        output_dir / 'num-features-classified-absolute.svg'
+        reduced_aggregated_counts,
+        output_dir / 'num-features-classified-absolute.svg',
     )
+    ROTATED_XLABELS = True
     plot_num_features_classified_relative(
-        aggregated_counts['relative'],
-        {feat_type: stats['total'] for feat_type, stats in aggregated_counts['absolute'].items()},
-        output_dir / 'num-features-classified-relative.svg'
+        reduced_aggregated_counts,
+        output_dir / 'num-features-classified-relative.svg',
+        ROTATED_XLABELS,
     )
     strings_by_len_orig = read_json(dumps_dir / 'classified-aggregated-strings-by-len-counts.json')
     plot_num_strings_by_len_classified(
         {int(k): v for k, v in strings_by_len_orig.items()},
-        output_dir / 'num-strings-by-len-classified.svg'
+        output_dir / 'num-strings-by-len-classified.svg',
     )
-    features_by_num_origins_orig = read_json(dumps_dir / 'aggregated-by-num-origins-counts.json')
+    features_by_num_origins_orig: dict[str, dict[str, dict[str, int]]] = read_json(dumps_dir / 'aggregated-by-num-origins-counts.json')
+    features_by_num_origins = {
+        data_set_key: {
+            feat_type: {int(k): v for k, v in counter.items()}
+            for feat_type, counter in data_set.items()
+        }
+        for data_set_key, data_set in features_by_num_origins_orig.items()
+    }
     plot_num_features_aggregated_by_num_origins(
-        features_by_num_origins_orig,
-        output_dir / 'num-features-by-num-origins.svg'
+        features_by_num_origins,
+        output_dir / 'num-features-by-num-origins.svg',
+        MAX_NUM_FEATURE_TYPES,
     )
 
 
