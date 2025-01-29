@@ -74,8 +74,8 @@ def plot_num_features_classified_absolute(data_set: dict[str, dict[str, int]], o
         bottom += uniq_class_stats
 
     ax.yaxis.set_major_formatter(matplotlib.ticker.FuncFormatter(lambda x, _: f'{int(x):,}'))
-    ax.set_title("Number of extracted features from ELFs classified by uniqueness")
-    ax.legend(loc='upper right')
+    ax.set_title("Number of strings extracted from ELFs using GNU `strings` missing from strings extracted using ELF parsing classified by uniqueness", wrap=True)
+    ax.legend(title="ELF section name", loc='upper right')
 
     fig.savefig(output_filename)
 
@@ -109,7 +109,8 @@ def plot_num_features_classified_relative(data_set: dict[str, dict[str, int]], o
         ax.set_xticks(feat_type_labels, feat_type_labels, rotation=30, horizontalalignment='right')
 
     ax.yaxis.set_major_formatter(matplotlib.ticker.PercentFormatter(1.0))
-    ax.set_title("Ratio of uniqueness classes of extracted features from ELFs")
+    ax.set_title("Ratio of uniqueness classes of strings in most common ELF sections extracted from ELFs using GNU `strings` missing from strings extracted using ELF parsing", wrap=True)
+    ax.set_xlabel("ELF section name")
     ax.legend(loc='lower right')
 
     if rotated_xlabels:
@@ -150,7 +151,7 @@ def plot_num_strings_by_len_classified(data_set: dict[int, dict[str, int]], outp
     ax.legend(loc='lower right')
     ax.invert_yaxis()
     ax.xaxis.set_major_formatter(matplotlib.ticker.FuncFormatter(lambda x, _: f'{int(x):,}'))
-    ax.set_title("Number of strings extracted from ELFs grouped by length, classified by uniqueness", wrap=True)
+    ax.set_title("Number of strings extracted from ELFs using GNU `strings` missing from strings extracted using ELF parsing grouped by length, classified by uniqueness", wrap=True)
 
     fig.savefig(output_filename)
 
@@ -221,10 +222,10 @@ def plot_num_features_aggregated_by_num_origins(full_data_sets: dict[str, dict[s
         ax.set_xlabel(subplot_xlabel)
 
         ax.yaxis.set_major_formatter(matplotlib.ticker.FuncFormatter(lambda x, _: f'{int(x):,}'))
-        ax.legend(loc='upper right')
+        ax.legend(title="ELF section name", loc='upper right')
         ax.set_title(subplot_title)
 
-    fig.suptitle("Number of features extracted from ELFs grouped by the number of ELFs/packages in which they occur", wrap=True)
+    fig.suptitle("Number of strings extracted from ELFs using GNU `strings` missing from strings extracted using ELF parsing grouped by the number of ELFs/packages in which they occur", wrap=True)
 
     fig.savefig(output_filename)
 
