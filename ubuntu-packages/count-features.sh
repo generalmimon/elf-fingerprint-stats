@@ -30,5 +30,5 @@ declare -p dumps_dir
 
 set -v
 jq -f "$jq_scripts_dir"/count-classified-aggregated.jq "$dumps_dir"/classified-aggregated.json > "$dumps_dir"/classified-aggregated-counts.json
-jq -f "$jq_scripts_dir"/count-classified-per-packages.jq "$dumps_dir"/classified-per-packages.json > "$dumps_dir"/classified-per-packages-counts.json
-jq -f "$jq_scripts_dir"/count-duplicate-grouped.jq "$dumps_dir"/duplicate-grouped.json > "$dumps_dir"/duplicate-grouped-counts.json
+jq -f "$jq_scripts_dir"/count-classified-per-elfs.jq "$dumps_dir"/classified-per-elfs.json > "$dumps_dir"/classified-per-elfs-counts.json
+jq -f "$jq_scripts_dir"/count-not-unique-grouped-by-elf-set.jq "$dumps_dir"/not-unique-grouped-by-elf-set.json > "$dumps_dir"/not-unique-grouped-by-elf-set-counts.json
