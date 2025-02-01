@@ -3,5 +3,8 @@ matplotlib
 numpy
 pip-tools
 python-debian
+pyyaml
 requests
+scikit-learn
 tqdm
+yara-python

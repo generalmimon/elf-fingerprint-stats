@@ -166,8 +166,6 @@ def main() -> None:
     elfs = [path for path in elfs_dir.glob('**/*') if path.is_file()]
     elfs.sort()
     for elf_path in tqdm(elfs):
-        if not elf_path.is_file():
-            continue
         rel_elf_path = str(elf_path.relative_to(elfs_dir))
         json_from_elfs[rel_elf_path] = extract_strings_from_elf(elf_path)
         json_from_blobs[rel_elf_path] = extract_strings_from_blob(elf_path)
