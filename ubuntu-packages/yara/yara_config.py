@@ -1,5 +1,7 @@
 #!/usr/bin/env python3
 
+# Extracted from BANG: https://github.com/armijnhemel/binaryanalysis-ng/blob/e05071e01213c7d7d7261e979ab1d308872e87d0/maintenance/yara/yara_config.py
+
 # Binary Analysis Next Generation (BANG!)
 #
 # Copyright 2022 - Armijn Hemel
